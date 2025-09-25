@@ -1,0 +1,13 @@
+import OrgChartComponent from "./components/OrgChartComponent";
+import { functional_structure } from "./store/functional_structure";
+
+export default function App() {
+    const orgData = functional_structure;
+
+    return (
+        <div style={{ padding: 20 }}>
+            <h2>Company Org Chart</h2>
+            <OrgChartComponent data={orgData} />
+        </div>
+    );
+}
