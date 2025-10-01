@@ -27,7 +27,7 @@ export default function DynamicTable({ data }) {
                 <thead>
                     <tr style={{ background: "#f3f4f6" }}>
                         <th style={{ padding: "8px 12px", border: "1px solid #e5e7eb", fontWeight: 700 }}>Deliverable</th>
-                        <th style={{ padding: "8px 12px", border: "1px solid #e5e7eb", fontWeight: 700 }}>Frequency Deliverable</th>
+                        <th style={{ padding: "8px 12px", border: "1px solid #e5e7eb", fontWeight: 700 }}>Frequency of Deliverables</th>
                         <th style={{ padding: "8px 12px", border: "1px solid #e5e7eb", fontWeight: 700 }}>Responsible</th>
                         <th style={{ padding: "8px 12px", border: "1px solid #e5e7eb", fontWeight: 700 }}>Accountable</th>
                         <th style={{ padding: "8px 12px", border: "1px solid #e5e7eb", fontWeight: 700 }}>Support</th>

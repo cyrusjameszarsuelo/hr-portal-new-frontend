@@ -1,293 +1,16 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Title from "../components/Title";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { deleteFunction, getFunctionalStructure } from "../utils/functional_structure";
+import { getFunctionalStructure } from "../utils/functional_structure";
 import { Loading, Error } from "../components/LoadingError";
-import CustomDropdown from "../components/CustomDropdown";
-import ButtonIcon from "../components/ButtonIcon";
-import DynamicTable from "../components/DynamicTable";
-import CustomModal from "../components/CustomModal";
-
-function FunctionItems({
-    data,
-    level = 0,
-    searchTargetId,
-    onRef,
-    parentPath = [],
-    refetch,
-}) {
-    const [open, setOpen] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [deleteData, setDeleteData] = useState({
-        id: null,
-        type: null,
-    });
-    const itemRef = useRef(null);
-    const currentPath = React.useMemo(
-        () => [...parentPath, data.id || data.subfunction_id],
-        [parentPath, data.id, data.subfunction_id],
-    );
-
-    useEffect(() => {
-        if (onRef) {
-            onRef(data.id || data.subfunction_id, {
-                setOpen,
-                ref: itemRef,
-                path: currentPath,
-            });
-        }
-    }, [onRef, data.id, data.subfunction_id, currentPath]);
-
-    useEffect(() => {
-        // Only open if this is the parent (level 0) of the search target
-        if (
-            searchTargetId &&
-            (data.id === searchTargetId ||
-                data.subfunction_id === searchTargetId)
-        ) {
-            if (level === 0) {
-                setOpen(true);
-                if (itemRef.current) {
-                    itemRef.current.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
-                    });
-                }
-            } else {
-                setOpen(false);
-            }
-        } else {
-            setOpen(false);
-        }
-    }, [searchTargetId, data.id, data.subfunction_id, level]);
-    const navigate = useNavigate();
-
-    const handleEdit = (id, type) => {
-        navigate(`/manage-function/${type}/${id}`);
-    };
-
-    // Delete logic with refetch
-    const handleDelete = async () => {
-        try {
-            await deleteFunction(deleteData);
-            if (typeof refetch === "function") {
-                await refetch();
-            }
-        } finally {
-            setShowDeleteModal(false);
-        }
-    };
-
-    const handleDeleteFn = (id, type) => {
-        setShowDeleteModal(true);
-        setDeleteData({ id, type });
-    };
-
-    // Highlight if this function/subfunction is the search target
-    const isHighlighted =
-        searchTargetId &&
-        (data.id === searchTargetId || data.subfunction_id === searchTargetId);
-    return (
-        <div
-            ref={itemRef}
-            className={`mb-3 ${level === 0 ? "border-b border-gray-200" : ""} ${
-                isHighlighted ? "bg-gray-200 transition-all duration-300" : ""
-            }`}
-        >
-            <div className="w-full flex items-center py-1 px-4">
-                <CustomDropdown
-                    label={data.label}
-                    setOpen={setOpen}
-                    open={open}
-                    level={level}
-                >
-                    <svg
-                        className={`w-5 h-5 ml-2 transform transition-transform duration-300 ${
-                            open ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19 9l-7 7-7-7"
-                        />
-                    </svg>
-                </CustomDropdown>
-                <ButtonIcon data={data} handleEdit={handleEdit}>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-gray-700"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828A2 2 0 019 17H7v-2a2 2 0 01.586-1.414z"
-                        />
-                    </svg>
-                </ButtonIcon>
-                <button
-                    type="button"
-                    className="ml-2 opacity-70 hover:opacity-100 focus:opacity-100 transition-opacity duration-200 bg-white border border-gray-300 rounded-full p-1 flex items-center justify-center shadow hover:bg-gray-100 focus:ring-2 focus:ring-red-400"
-                    tabIndex={0}
-                    title="Edit"
-                    onClick={() =>
-                        handleDeleteFn(
-                            data.subfunction_id ?? data.id,
-                            data.subfunction_id ? "subfunction" : "function",
-                        )
-                    }
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                    </svg>
-                </button>
-                {/* Delete Confirmation Modal */}
-                <CustomModal
-                    isOpen={showDeleteModal}
-                    onClose={() => setShowDeleteModal(false)}
-                    title="Delete Confirmation"
-                >
-                    <div className="p-4">
-                        <p className="mb-4 text-gray-700">
-                            Are you sure you want to delete{" "}
-                            <span className="font-semibold">{data.label}</span>?
-                        </p>
-                        <div className="flex justify-end gap-2">
-                            <button
-                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                                onClick={() => setShowDeleteModal(false)}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                                onClick={handleDelete}
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </CustomModal>
-            </div>
-            <div
-                className={`overflow-hidden transition-all duration-300 ${
-                    open ? "max-h opacity-100" : "max-h-0 opacity-0"
-                }`}
-                style={{ paddingLeft: level * 20 }}
-            >
-                {data.description && data.description.length > 0 && (
-                    <div className="pl-4 border-l border-gray-300 mt-3">
-                        <div className="w-full ">
-                            <div
-                                className={`transition-all duration-300 ${
-                                    open ? "opacity-100" : "max-h-0 opacity-0"
-                                } overflow-hidden`}
-                            >
-                                {data.description.map((desc, idx) => {
-                                    const descHighlighted =
-                                        searchTargetId &&
-                                        desc.descriptionId === searchTargetId;
-                                    return (
-                                        <div
-                                            key={idx}
-                                            className={`p-3 mb-3 bg-white border border-gray-200 rounded shadow-sm ${
-                                                descHighlighted
-                                                    ? " bg-gray-200 transition-all duration-300"
-                                                    : ""
-                                            }`}
-                                        >
-                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                                <div className="flex items-center flex-wrap gap-x-2">
-                                                    <span className="text-red-700 font-semibold">
-                                                        Description:
-                                                    </span>
-                                                    <span className="text-gray-800 ml-1 ">
-                                                        {desc.label}
-                                                    </span>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 ml-auto sm:ml-0 sm:mr-0 w-auto text-sm mb-4"
-                                                    onClick={() => {
-                                                        navigate(
-                                                            `/manage-description/${
-                                                                data.subfunction_id ??
-                                                                ""
-                                                            }/${
-                                                                desc.descriptionId ??
-                                                                ""
-                                                            }`,
-                                                        );
-                                                    }}
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-4 w-4"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                        strokeWidth={2}
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828A2 2 0 019 17H7v-2a2 2 0 01.586-1.414z"
-                                                        />
-                                                    </svg>
-                                                    <span>Edit</span>
-                                                </button>
-                                            </div>
-                                            <DynamicTable data={desc} />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {data.subfunction && data.subfunction.length > 0 && (
-                    <div className="pl-4 border-l border-gray-300 mt-3">
-                        {data.subfunction.map((sub, idx) => (
-                            <FunctionItems
-                                key={idx}
-                                data={sub}
-                                level={level + 1}
-                                searchTargetId={searchTargetId}
-                                onRef={onRef}
-                                parentPath={currentPath}
-                                refetch={refetch}
-                            />
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
+import FunctionalDropdownItem from "../components/FunctionalDropdownItem";
+import FunctionalStructureSearch from "../components/FunctionalStructureSearch";
 
 export default function FunctionalStructure() {
     const navigate = useNavigate();
+    
+    // Data fetching
     const {
         data: functionData,
         isLoading,
@@ -299,218 +22,193 @@ export default function FunctionalStructure() {
         refetchOnWindowFocus: true,
     });
 
-    // Search state
-    const [search, setSearch] = useState("");
-    const [suggestions, setSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
+    // State management
+    const [openLevel0ItemId, setOpenLevel0ItemId] = useState(null);
+    const [openLevel0Items, setOpenLevel0Items] = useState(new Set());
     const [searchTargetId, setSearchTargetId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [isAllExpanded, setIsAllExpanded] = useState(false);
     const refsMap = useRef({});
 
-    // Collect all items for search (flatten tree), but only include level 0 and 1 (no descriptions or level 2+)
-    const flattenItems = React.useCallback(
-        (items, parentPath = [], level = 0) => {
-            let flat = [];
-            items.forEach((item) => {
-                const id = item.id || item.subfunction_id;
-                // Only include level 0 and 1
-                if (level <= 1) {
-                    flat.push({
-                        id,
-                        label: item.label,
-                        type: item.id ? "Function" : "Subfunction",
-                        path: [...parentPath, id],
-                        level,
-                    });
+    // Handle level 0 toggle - can handle both single and multiple open items
+    const handleLevel0Toggle = useCallback((itemData, shouldOpen) => {
+        const itemId = itemData.id || itemData.subfunction_id;
+        const itemIdStr = itemId.toString();
+        
+        if (isAllExpanded) {
+            // When in expand all mode, manage multiple open items
+            setOpenLevel0Items(prev => {
+                const newSet = new Set(prev);
+                if (shouldOpen) {
+                    newSet.add(itemIdStr);
+                } else {
+                    newSet.delete(itemIdStr);
                 }
-                if (
-                    item.subfunction &&
-                    item.subfunction.length > 0 &&
-                    level < 1
-                ) {
-                    flat = flat.concat(
-                        flattenItems(
-                            item.subfunction,
-                            [...parentPath, id],
-                            level + 1,
-                        ),
-                    );
-                }
-                // Do NOT include descriptions or level 2+
+                return newSet;
             });
-            return flat;
-        },
-        [],
-    );
-
-    // Update suggestions as user types
-    useEffect(() => {
-        if (!search || !functionData) {
-            setSuggestions([]);
-            return;
+        } else {
+            // Normal mode - only one can be open at a time
+            setOpenLevel0ItemId(shouldOpen ? itemIdStr : null);
         }
-        const flat = flattenItems(functionData);
-        const filtered = flat.filter((item) =>
-            item.label.toLowerCase().includes(search.toLowerCase()),
-        );
-        setSuggestions(filtered.slice(0, 8));
-    }, [search, functionData, flattenItems]);
+    }, [isAllExpanded]);
 
-    // Register refs for navigation
-    const handleRef = (id, refObj) => {
+    // Register refs for search functionality
+    const handleRef = useCallback((id, refObj) => {
         refsMap.current[id] = refObj;
-    };
+    }, []);
 
-    // When a suggestion is clicked, open all parents and scroll to item
-    const handleSuggestionClick = (item) => {
-        setShowSuggestions(false);
-        setSearch(item.label);
-        setSearchTargetId(
-            item.type === "Description" ? item.parentId : item.id,
-        );
-        // Open all parent dropdowns
-        if (item.path) {
-            item.path.forEach((id) => {
-                if (refsMap.current[id]) {
-                    refsMap.current[id].setOpen(true);
-                }
-            });
+    // Handle search suggestion clicks
+    const handleSuggestionClick = useCallback((item) => {
+        setSearchTargetId(item.type === "Description" ? item.parentId : item.id);
+        setSearchTerm(item.label || "");
+        
+        // Only open parent levels, not the item's own level
+        if (item.path && item.level > 0) {
+            // For level 1 items, open the level 0 parent
+            const parentId = item.path[0].toString();
+            setOpenLevel0ItemId(parentId);
         }
-        // Scroll to item
+        
+        // Scroll to item after a brief delay to allow for opening
         setTimeout(() => {
-            if (
-                refsMap.current[
-                    item.type === "Description" ? item.parentId : item.id
-                ]?.ref?.current
-            ) {
-                refsMap.current[
-                    item.type === "Description" ? item.parentId : item.id
-                ].ref.current.scrollIntoView({
+            const targetId = item.type === "Description" ? item.parentId : item.id;
+            if (refsMap.current[targetId]?.ref?.current) {
+                refsMap.current[targetId].ref.current.scrollIntoView({
                     behavior: "smooth",
                     block: "center",
                 });
             }
         }, 200);
-    };
+    }, []);
 
     // Clear search and close all dropdowns
-    const handleClearSearch = () => {
-        setSearch("");
-        setSuggestions([]);
-        setShowSuggestions(false);
+    const handleClearSearch = useCallback(() => {
         setSearchTargetId(null);
-        // Close all dropdowns
-        Object.values(refsMap.current).forEach((refObj) => {
-            if (refObj.setOpen) refObj.setOpen(false);
-        });
-    };
+        setSearchTerm("");
+        if (isAllExpanded) {
+            setOpenLevel0Items(new Set());
+            setIsAllExpanded(false);
+        } else {
+            setOpenLevel0ItemId(null);
+        }
+    }, [isAllExpanded]);
 
-    const handleAdd = (type) => {
-        navigate(`/manage-function/${type}`);
-    };
+    // Toggle all dropdowns to level 1 or collapse all
+    const toggleAllDropdowns = useCallback(() => {
+        if (isAllExpanded) {
+            // Close all dropdowns and return to normal mode
+            setOpenLevel0Items(new Set());
+            setOpenLevel0ItemId(null);
+            setIsAllExpanded(false);
+        } else {
+            // Open all level 0 items to show level 1 children
+            if (functionData && functionData.length > 0) {
+                const allLevel0Ids = functionData.map(item => {
+                    const itemId = item.id || item.subfunction_id;
+                    return itemId.toString();
+                });
+                setOpenLevel0Items(new Set(allLevel0Ids));
+                setOpenLevel0ItemId(null); // Clear single selection
+                setIsAllExpanded(true);
+            }
+        }
+    }, [isAllExpanded, functionData]);
 
+    // Navigate to add function page
+    const handleAdd = useCallback(() => {
+        navigate("/manage-function/add-function");
+    }, [navigate]);
+
+    // Loading and error states
     if (isLoading) return <Loading />;
-    if (isError)
-        return <Error message="Failed to load functional structure." />;
+    if (isError) return <Error message="Failed to load functional structure." />;
 
     return (
         <section className="w-auto p-6 bg-white rounded-lg shadow">
+            {/* Header */}
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="w-full sm:w-auto">
                     <Title title="Functional Structure" />
                 </div>
-
-                <button
-                    type="button"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 ml-auto sm:ml-0 sm:mr-0 w-auto text-sm"
-                    onClick={() => handleAdd("add-function")}
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 w-auto text-sm"
+                        onClick={handleAdd}
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 4v16m8-8H4"
-                        />
-                    </svg>
-                    Add
-                </button>
-            </div>
-            {/* Search Bar */}
-            <div className="mb-4 relative max-w-md">
-                <div className="relative">
-                    <input
-                        type="text"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 pr-10"
-                        placeholder="Search function, subfunction, or description..."
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value);
-                            setShowSuggestions(true);
-                        }}
-                        onFocus={() => setShowSuggestions(true)}
-                        onBlur={() =>
-                            setTimeout(() => setShowSuggestions(false), 150)
-                        }
-                    />
-                    {search && (
-                        <button
-                            type="button"
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none"
-                            onClick={handleClearSearch}
-                            tabIndex={0}
-                            aria-label="Clear search"
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg>
-                        </button>
-                    )}
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 4v16m8-8H4"
+                            />
+                        </svg>
+                        Add
+                    </button>
+                    <button
+                        type="button"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white font-semibold rounded-lg shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 transition-all duration-200 w-auto text-sm"
+                        onClick={toggleAllDropdowns}
+                        title={isAllExpanded ? "Collapse All" : "Expand All"}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d={isAllExpanded ? "M4 14l4-4m0 0l4 4m-4-4v18" : "M20 10l-4 4m0 0l-4-4m4 4V6"}
+                            />
+                        </svg>
+                        {isAllExpanded ? "Collapse All" : "Expand All"}
+                    </button>
                 </div>
-                {showSuggestions && suggestions.length > 0 && (
-                    <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow mt-1 max-h-60 overflow-auto">
-                        {suggestions.map((item, idx) => (
-                            <li
-                                key={item.id + idx}
-                                className="px-4 py-2 cursor-pointer hover:bg-red-100"
-                                onMouseDown={() => handleSuggestionClick(item)}
-                            >
-                                <span className="font-semibold text-gray-800">
-                                    {item.label}
-                                </span>
-                                <span className="ml-2 text-xs text-gray-500">
-                                    ({item.type})
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
             </div>
-            {functionData?.map((data, idx) => (
-                <FunctionItems
-                    key={idx}
-                    data={data}
-                    searchTargetId={searchTargetId}
-                    onRef={handleRef}
-                    refetch={refetch}
-                />
-            ))}
+
+            {/* Search Component */}
+            <FunctionalStructureSearch
+                functionData={functionData}
+                onSuggestionClick={handleSuggestionClick}
+                onClearSearch={handleClearSearch}
+            />
+
+            {/* Function Items */}
+            {functionData?.map((data, idx) => {
+                const itemId = data.id || data.subfunction_id;
+                const uniqueItemId = itemId.toString(); // Level 0 items use simple ID since no parent
+                
+                // Determine if this item should be open based on current mode
+                const isItemOpen = isAllExpanded 
+                    ? openLevel0Items.has(uniqueItemId)
+                    : openLevel0ItemId === uniqueItemId;
+                
+                return (
+                    <FunctionalDropdownItem
+                        key={idx}
+                        data={data}
+                        level={0}
+                        searchTargetId={searchTargetId}
+                        searchTerm={searchTerm}
+                        onRef={handleRef}
+                        parentPath={[]}
+                        refetch={refetch}
+                        isOpen={isItemOpen}
+                        onToggle={handleLevel0Toggle}
+                    />
+                );
+            })}
         </section>
     );
 }

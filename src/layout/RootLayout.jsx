@@ -6,7 +6,7 @@ export default function RootLayout() {
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
-            <div className="px-8 py-8 flex-1 bg-[#f2eeef]">
+            <div className="lg:px-8 lg:py-8 flex-1 bg-[#f2eeef]">
                 <Outlet />
             </div>
             <Footer />
