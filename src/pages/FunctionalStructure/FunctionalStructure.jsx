@@ -1,11 +1,11 @@
 import React, { useState, useRef, useCallback } from "react";
-import Title from "../components/Title";
+import Title from "../../components/Title";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getFunctionalStructure } from "../utils/functional_structure";
-import { Loading, Error } from "../components/LoadingError";
-import FunctionalDropdownItem from "../components/FunctionalDropdownItem";
-import FunctionalStructureSearch from "../components/FunctionalStructureSearch";
+import { getFunctionalStructure } from "../../utils/functional_structure";
+import { Loading, Error } from "../../components/LoadingError";
+import FunctionalDropdownItem from "../../components/FunctionalDropdownItem";
+import FunctionalStructureSearch from "../../components/FunctionalStructureSearch";
 
 export default function FunctionalStructure() {
     const navigate = useNavigate();
@@ -169,7 +169,7 @@ export default function FunctionalStructure() {
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                d={isAllExpanded ? "M4 14l4-4m0 0l4 4m-4-4v18" : "M20 10l-4 4m0 0l-4-4m4 4V6"}
+                                d={isAllExpanded ? "m4.5 15.75 7.5-7.5 7.5 7.5" : "m19.5 8.25-7.5 7.5-7.5-7.5"}
                             />
                         </svg>
                         {isAllExpanded ? "Collapse All" : "Expand All"}

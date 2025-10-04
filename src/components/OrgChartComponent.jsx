@@ -1,110 +1,83 @@
-import { useEffect, useRef, useState } from "react";
+// OrgChartComponent.tsx
+import { useEffect, useRef } from "react";
 import OrgChart from "@balkangraph/orgchart.js";
 
-export default function OrgChartComponent({ data }) {
-    const containerRef = useRef(null);
+const OrgChartComponent = ({ orgData }) => {
     const chartRef = useRef(null);
 
-    const [selectedNode, setSelectedNode] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
     useEffect(() => {
-        if (!containerRef.current || !data) return;
+        if (!chartRef.current) return;
 
-        const chart = new OrgChart(containerRef.current, {
-            nodes: data,
-            nodeBinding: { field_0: "name", field_1: "title" },
-            template: "ana",
-            enableDragDrop: false,
-            collapse: { level: 1 },
+        const chart = new OrgChart(chartRef.current, {
+            template: "olivia", // nice template with avatars
+            mouseScrool: OrgChart.action.zoom, // enable zooming
+            orientation: OrgChart.isMobile()
+                ? OrgChart.orientation.left
+                : OrgChart.orientation.top,
+            nodeBinding: {
+                field_0: "name",
+                field_1: "position_title",
+            },
+            searchFields: ["name"],
+            nodes: orgData,
+            collapse: { level: 2 },
+            editForm: {
+                generateElementsFromFields: false, // disable auto fields
+                elements: [
+                    { type: "textbox", label: "Name", binding: "name" },
+                    {
+                        type: "textbox",
+                        label: "Position Title",
+                        binding: "position_title",
+                    },
+                    {
+                        type: "textbox",
+                        label: "Active",
+                        binding: "is_active",
+                    },
+                    {
+                        type: "textbox",
+                        label: "First Name",
+                        binding: "firstname",
+                    },
+                    {
+                        type: "textbox",
+                        label: "Last Name",
+                        binding: "lastname",
+                    },
+                    {
+                        type: "textbox",
+                        label: "Nickname",
+                        binding: "nickname",
+                    },
+                ],
+            },
         });
 
-        chartRef.current = chart;
+        // chart.onField(function (sender, args) {
+        //     console.log(args);
+        //     // if (args.field === "field_0") {
+        //     //     args.value = "Name: " + args.value;
+        //     // } else if (args.field === "field_1") {
+        //     //     args.value = "Position Title: " + args.value;
+        //     // }
+        // });
 
-        // Hide the built-in editor panel
-        try {
-            chart.editUI &&
-                typeof chart.editUI.hide === "function" &&
-                chart.editUI.hide();
-        } catch (err) {
-            console.warn("editUI.hide() threw:", err);
-        }
+        // // Responsive handling
+        // chart.on("init", () => {
+        //     // chart.fit(); // auto zoom to fit
+        // });
 
-        // Custom modal logic
-        chart.on("click", (sender, args) => {
-            const nodeId =
-                args?.node?.id ?? args?.node ?? args?.nodeId ?? args?.id;
-
-            let nodeData = null;
-            try {
-                nodeData =
-                    typeof chart.get === "function" ? chart.get(nodeId) : null;
-            } catch (err) {
-                console.error("chart.get threw:", err);
-            }
-
-            setSelectedNode(nodeData || { id: nodeId });
-            setIsModalOpen(true);
-
-            return false; // prevent default behavior
-        });
+        // const handleResize = () => chart.fit();
+        // window.addEventListener("resize", handleResize);
 
         return () => {
-            chart.destroy && chart.destroy();
+            chart.destroy();
+            //   window.removeEventListener("resize", handleResize);
         };
-    }, [data]); // re-render if data changes
+    }, [orgData]);
 
-    return (
-        <div>
-            <div
-                ref={containerRef}
-                style={{
-                    width: "100%",
-                    height: "100vh",
-                    border: "1px solid #eee",
-                    marginBottom: 12,
-                }}
-            />
+    return <div ref={chartRef} style={{ width: "100%", height: "100%" }} />;
+};
 
-            {isModalOpen && selectedNode && (
-                <div
-                    style={{
-                        position: "fixed",
-                        left: 0,
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "rgba(0,0,0,0.5)",
-                        zIndex: 99999,
-                    }}
-                    onClick={() => setIsModalOpen(false)}
-                >
-                    <div
-                        style={{
-                            background: "#fff",
-                            padding: 20,
-                            borderRadius: 8,
-                            minWidth: 320,
-                            boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3>{selectedNode.name ?? `Id: ${selectedNode.id}`}</h3>
-                        <p>{selectedNode.title}</p>
-                        <p>Dept: {selectedNode.department ?? "—"}</p>
-
-                        <button
-                            onClick={() => setIsModalOpen(false)}
-                            style={{ marginTop: 12 }}
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
+export default OrgChartComponent;

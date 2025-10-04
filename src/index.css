@@ -19,3 +19,8 @@ body {
     border-radius: 10px;
     margin-bottom: 1rem;
 } */
+
+div.boc-img-button>svg {
+    display: inline-block;
+    vertical-align: baseline;
+}

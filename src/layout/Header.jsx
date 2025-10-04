@@ -1,30 +1,32 @@
-// import {
-//     Dialog,
-//     DialogPanel,
-//     Disclosure,
-//     DisclosureButton,
-//     DisclosurePanel,
-//     Popover,
-//     PopoverButton,
-//     PopoverGroup,
-//     PopoverPanel,
-// } from "@headlessui/react";
-// import {
-//     ArrowPathIcon,
-//     Bars3Icon,
-//     ChartPieIcon,
-//     CursorArrowRaysIcon,
-//     FingerPrintIcon,
-//     SquaresPlusIcon,
-//     XMarkIcon,
-// } from "@heroicons/react/24/outline";
-// import {
-//     ChevronDownIcon,
-//     PhoneIcon,
-//     PlayCircleIcon,
-// } from "@heroicons/react/20/solid";
-// import { useState } from "react";
+import {
+    Dialog,
+    DialogPanel,
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+    Popover,
+    PopoverButton,
+    PopoverGroup,
+    PopoverPanel,
+} from "@headlessui/react";
+import {
+    ArrowPathIcon,
+    Bars3Icon,
+    ChartPieIcon,
+    CursorArrowRaysIcon,
+    FingerPrintIcon,
+    SquaresPlusIcon,
+    XMarkIcon,
+} from "@heroicons/react/24/outline";
+import {
+    ChevronDownIcon,
+    PhoneIcon,
+    PlayCircleIcon,
+} from "@heroicons/react/20/solid";
+import { useState } from "react";
 import logo from "../assets/images/megawide-logo.png";
+import icon from "../assets/images/megawide-icon.png";
+import { Link } from "react-router";
 
 // const products = [
 //     {
@@ -64,7 +66,7 @@ import logo from "../assets/images/megawide-logo.png";
 // ];
 
 export default function Header() {
-    // const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     return (
         <header className="bg-white">
@@ -74,11 +76,11 @@ export default function Header() {
             >
                 <div className="flex lg:flex-1">
                     <a href="#" className="-m-1.5 p-1.5">
-                        <span className="sr-only">Your Company</span>
+                        <span className="sr-only">Megawide</span>
                         <img alt="" src={logo} className="h-18 w-auto" />
                     </a>
                 </div>
-                {/* <div className="flex lg:hidden">
+                <div className="flex lg:hidden">
                     <button
                         type="button"
                         onClick={() => setMobileMenuOpen(true)}
@@ -87,9 +89,9 @@ export default function Header() {
                         <span className="sr-only">Open main menu</span>
                         <Bars3Icon aria-hidden="true" className="size-6" />
                     </button>
-                </div> */}
-                {/* <PopoverGroup className="hidden lg:flex lg:gap-x-12">
-                    <Popover className="relative">
+                </div>
+                <PopoverGroup className="hidden lg:flex lg:gap-x-12">
+                    {/* <Popover className="relative">
                         <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900">
                             Product
                             <ChevronDownIcon
@@ -145,27 +147,29 @@ export default function Header() {
                                 ))}
                             </div>
                         </PopoverPanel>
-                    </Popover>
+                    </Popover> */}
 
-                    <a
-                        href="#"
+                    {/* <Link
+                        to="/"
                         className="text-sm/6 font-semibold text-gray-900"
                     >
-                        Features
-                    </a>
-                    <a
-                        href="#"
+                        Functional Structure
+                    </Link>
+
+                    <Link
+                        to="org-structure"
                         className="text-sm/6 font-semibold text-gray-900"
                     >
-                        Marketplace
-                    </a>
-                    <a
+                        Organizational Structure
+                    </Link> */}
+
+                    {/* <a
                         href="#"
                         className="text-sm/6 font-semibold text-gray-900"
                     >
                         Company
-                    </a>
-                </PopoverGroup> */}
+                    </a> */}
+                </PopoverGroup>
                 {/* <div className="hidden lg:flex lg:flex-1 lg:justify-end">
                     <a
                         href="#"
@@ -175,7 +179,7 @@ export default function Header() {
                     </a>
                 </div> */}
             </nav>
-            {/* <Dialog
+            <Dialog
                 open={mobileMenuOpen}
                 onClose={setMobileMenuOpen}
                 className="lg:hidden"
@@ -184,12 +188,8 @@ export default function Header() {
                 <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
                     <div className="flex items-center justify-between">
                         <a href="#" className="-m-1.5 p-1.5">
-                            <span className="sr-only">Your Company</span>
-                            <img
-                                alt=""
-                                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                                className="h-8 w-auto"
-                            />
+                            <span className="sr-only">Megawide</span>
+                            <img alt="" src={icon} className="h-8 w-auto" />
                         </a>
                         <button
                             type="button"
@@ -203,7 +203,7 @@ export default function Header() {
                     <div className="mt-6 flow-root">
                         <div className="-my-6 divide-y divide-gray-500/10">
                             <div className="space-y-2 py-6">
-                                <Disclosure as="div" className="-mx-3">
+                                {/* <Disclosure as="div" className="-mx-3">
                                     <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
                                         Product
                                         <ChevronDownIcon
@@ -225,38 +225,39 @@ export default function Header() {
                                             ),
                                         )}
                                     </DisclosurePanel>
-                                </Disclosure>
-                                <a
-                                    href="#"
+                                </Disclosure> */}
+                                {/* <Link
+                                    to="/"
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                                 >
-                                    Features
-                                </a>
-                                <a
-                                    href="#"
+                                    Functional Structure
+                                </Link>
+
+                                <Link
+                                    to="org-structure"
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                                 >
-                                    Marketplace
-                                </a>
-                                <a
+                                    Organizational Structure
+                                </Link> */}
+                                {/* <a
                                     href="#"
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                                 >
                                     Company
-                                </a>
+                                </a> */}
                             </div>
-                            <div className="py-6">
+                            {/* <div className="py-6">
                                 <a
                                     href="#"
                                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                                 >
                                     Log in
                                 </a>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </DialogPanel>
-            </Dialog> */}
+            </Dialog>
         </header>
     );
 }

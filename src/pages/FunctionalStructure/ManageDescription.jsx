@@ -3,10 +3,10 @@ import { useNavigate, useParams } from "react-router";
 import {
     getDescriptionById,
     manageDescription,
-} from "../utils/functional_structure";
+} from "../../utils/functional_structure";
 import { useEffect, useState } from "react";
-import { Error, Loading } from "../components/LoadingError";
-import Title from "../components/Title";
+import { Error, Loading } from "../../components/LoadingError";
+import Title from "../../components/Title";
 
 export default function ManageDescription() {
     const [description, setDescription] = useState({

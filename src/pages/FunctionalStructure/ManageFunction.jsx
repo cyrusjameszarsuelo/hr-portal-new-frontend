@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Error, Loading } from "../components/LoadingError";
-import { getFunctionById, manageFunction } from "../utils/functional_structure";
+import { Error, Loading } from "../../components/LoadingError";
+import { getFunctionById, manageFunction } from "../../utils/functional_structure";
 import { useQuery } from "@tanstack/react-query";
-import Title from "../components/Title";
+import Title from "../../components/Title";
 
 function ManageFunction() {
     const navigate = useNavigate();
