@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+/* Change popup background */
+.boc-edit-form-header {
+  background-color: #231F20 !important;
+  /* whole popup body */
+}
+
+/* Change popup header (the blue top bar) */
+.boc-img-button {
+  background-color: #ee3124 !important;
+  color: white !important;
+  /* text color */
+}
+
+/* .boc-input>label {
+  top: 60px !important;
+  margin-left: 10px;
+} */
 
 /* #root {
   max-width: 1280px;

@@ -1,9 +1,25 @@
+import { useQuery } from "@tanstack/react-query";
 import OrgChartComponent from "../../components/OrgChartComponent";
 import Title from "../../components/Title";
-import { organizational_structure } from "../../data/organizational_structure";
+import { getOrgStructure } from "../../utils/org_structure";
+import { Error, Loading } from "../../components/LoadingError";
 
 export default function OrganizationalStructure() {
-    const orgStructureData = organizational_structure;
+    // Data fetching
+    const {
+        data: orgStructureData,
+        isLoading,
+        isError,
+    } = useQuery({
+        queryKey: ["functional-structure"],
+        queryFn: getOrgStructure,
+        refetchOnWindowFocus: true,
+    });
+
+    // Loading and error states
+    if (isLoading) return <Loading />;
+    if (isError)
+        return <Error message="Failed to load functional structure." />;
 
     return (
         <section className="w-auto p-6 bg-white rounded-lg shadow">

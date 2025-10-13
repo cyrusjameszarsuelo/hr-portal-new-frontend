@@ -149,7 +149,7 @@ export default function Header() {
                         </PopoverPanel>
                     </Popover> */}
 
-                    {/* <Link
+                    <Link
                         to="/"
                         className="text-sm/6 font-semibold text-gray-900"
                     >
@@ -161,7 +161,7 @@ export default function Header() {
                         className="text-sm/6 font-semibold text-gray-900"
                     >
                         Organizational Structure
-                    </Link> */}
+                    </Link>
 
                     {/* <a
                         href="#"
@@ -226,7 +226,7 @@ export default function Header() {
                                         )}
                                     </DisclosurePanel>
                                 </Disclosure> */}
-                                {/* <Link
+                                <Link
                                     to="/"
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                                 >
@@ -238,7 +238,7 @@ export default function Header() {
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                                 >
                                     Organizational Structure
-                                </Link> */}
+                                </Link>
                                 {/* <a
                                     href="#"
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"

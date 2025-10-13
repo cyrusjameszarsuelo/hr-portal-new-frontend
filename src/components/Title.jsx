@@ -10,7 +10,7 @@ export default function Title({ title }) {
                     }}
                 ></span>
                 <h2
-                    className="text-[100%] font-bold bg-black text-white px-6 py-2 rounded-r uppercase tracking-wide relative z-20 flex items-center"
+                    className="text-[100%] font-bold bg-[#231F20] text-white px-6 py-2 rounded-r uppercase tracking-wide relative z-20 flex items-center"
                     style={{ marginLeft: "0.5rem" }}
                 >
                     {title}
