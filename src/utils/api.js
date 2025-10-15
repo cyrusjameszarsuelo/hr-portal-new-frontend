@@ -1,8 +1,16 @@
 import axios from 'axios';
 
-// Create an Axios instance with a default base URL
+// Prefer VITE_API_URL from .env (Vite exposes env vars via import.meta.env).
+// Fall back to the hardcoded local IP if not provided.
+const DEFAULT_API_URL = 'http://192.168.100.125:8000';
+const rawBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) || DEFAULT_API_URL;
+
+// Normalize and ensure the base ends with '/api'
+const baseUrl = rawBase.endsWith('/api') ? rawBase : rawBase.replace(/\/$/, '') + '/api';
+
+// Create an Axios instance with the resolved base URL
 const api = axios.create({
-  baseURL: 'http://192.168.100.125:8000/api', // Change this to your actual API base URL
+  baseURL: baseUrl,
 });
 
 // Add a request interceptor to include the token in headers if it exists

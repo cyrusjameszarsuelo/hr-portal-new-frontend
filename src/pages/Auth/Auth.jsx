@@ -26,7 +26,7 @@ export default function Auth() {
 
                 <button
                     type="button"
-                    onClick={() => (window.location.href = "http://localhost:8000/api/auth/redirect")}
+                    onClick={() => (window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/redirect`)}
                     className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-md bg-[#ee3124] hover:bg-[#d22a1f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ee3124]/50 transition-colors"
                     aria-label="Sign in with Microsoft 365"
                 >

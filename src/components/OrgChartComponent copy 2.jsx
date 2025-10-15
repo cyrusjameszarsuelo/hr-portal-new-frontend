@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react"; // Import useCallback
+import { useEffect, useRef, useState } from "react";
 import OrgChart from "../assets/js/orgchart.js"; // Assuming this path is correct
 import {
     addOrgNode,
@@ -7,11 +7,10 @@ import {
 } from "../utils/org_structure";
 
 const OrgChartComponent = ({ orgData }) => {
+    console.log(OrgChart.isTrial() ? "Trial Version" : "Full Version");
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(""); // State for custom search input
-    const [searchResults, setSearchResults] = useState([]); // State for search results
     const BASE_URL = `${import.meta.env.VITE_API_URL}/storage/`;
 
     const processedOrgData = orgData.map((node) => ({
@@ -21,7 +20,7 @@ const OrgChartComponent = ({ orgData }) => {
         Department: node.department,
     }));
 
-    OrgChart.SEARCH_PLACEHOLDER = "Search for employee..."; // No longer needed for custom input
+    OrgChart.SEARCH_PLACEHOLDER = "Search for employee...";
 
     OrgChart.templates.filtered = Object.assign({}, OrgChart.templates.base);
     OrgChart.templates.filtered.size = [0, 0];
@@ -56,14 +55,16 @@ const OrgChartComponent = ({ orgData }) => {
                 field_1: "position_title",
                 img_0: "image",
             },
-            // searchFields: ["name", "position_title"], // No longer needed for built-in search UI
+            searchFields: ["name", "position_title"],
             nodes: processedOrgData,
             collapse: { level: 2, allChildren: true },
             tags: {
+                blueNode: {
+                    template: "blueTemplate",
+                },
                 redNode: {
                     template: "redTemplate",
                 },
-                filter: { template: "filtered" },
             },
             nodeMenu: {
                 add: {
@@ -95,9 +96,9 @@ const OrgChartComponent = ({ orgData }) => {
                 },
             },
             filterBy: {
+                // Ensure this is UNCOMMENTED for the filter UI to exist
                 Department: {},
             },
-            enableSearch: false,
             editForm: {
                 photoBinding: "image",
                 buttons: {
@@ -136,11 +137,72 @@ const OrgChartComponent = ({ orgData }) => {
             chart.fit();
             setIsExpanded(false);
 
+            // Use a small setTimeout to ensure all UI elements are fully rendered and attached
             setTimeout(() => {
-                if (chartInstance.current && chartInstance.current.filterUI) {
-                    chartInstance.current.filterUI.hide();
+                let searchElement = chart.searchUI.element; // Attempt standard access first
+                const filterElement = chart.filterUI.element;
+
+                // Fallback: If chart.searchUI.element is undefined, try to find it by common class/attribute
+                if (!searchElement && chartRef.current) {
+                    // Common class names for the search input or its container
+                    searchElement =
+                        chartRef.current.querySelector(".boc-search") ||
+                        chartRef.current.querySelector("[data-search]");
+                    if (searchElement) {
+                        console.log(
+                            "Found search element via querySelector:",
+                            searchElement,
+                        );
+                    }
                 }
-            }, 0);
+
+                console.log(
+                    "searchElement after timeout and fallback:",
+                    searchElement,
+                );
+                console.log("filterElement after timeout:", filterElement);
+
+                if (searchElement && filterElement) {
+                    const spacing = 10; // Desired vertical spacing between them
+
+                    // Get the computed styles to understand their current positioning
+                    const computedSearchStyle =
+                        window.getComputedStyle(searchElement);
+                    const currentSearchRight = computedSearchStyle.right;
+
+                    const filterHeight = filterElement.offsetHeight;
+
+                    let filterTop;
+                    let searchTop;
+
+                    if (OrgChart.isMobile()) {
+                        filterTop = 10; // Start filter at 10px from top of container
+                        searchTop = filterTop + filterHeight + spacing; // Place search below filter
+                    } else {
+                        // For desktop, use the original search bar's top as a reference
+                        const initialDesktopTop =
+                            parseFloat(computedSearchStyle.top) || 10;
+                        filterTop = initialDesktopTop; // Filter takes search's original top
+                        searchTop = filterTop + filterHeight + spacing; // Search moves below filter
+                    }
+
+                    // Apply styles to the filter element
+                    filterElement.style.position = "absolute";
+                    filterElement.style.top = `${filterTop}px`;
+                    filterElement.style.right = currentSearchRight;
+                    filterElement.style.zIndex = "1001"; // Ensure filter is on top
+
+                    // Apply styles to the search element
+                    searchElement.style.position = "absolute";
+                    searchElement.style.top = `${searchTop}px`;
+                    searchElement.style.right = currentSearchRight;
+                    searchElement.style.zIndex = "1000"; // Ensure search is below filter
+                } else {
+                    console.warn(
+                        "OrgChart UI elements (search or filter) not found for positioning. Ensure 'enableSearch' and 'filterBy' options are active and elements are rendered.",
+                    );
+                }
+            }, 0); // A 0ms timeout defers execution to the next event loop tick
         });
 
         chart.onUpdateNode(function (args) {
@@ -199,38 +261,6 @@ const OrgChartComponent = ({ orgData }) => {
         }
     };
 
-    const handleSearchChange = useCallback((event) => {
-        const value = event.target.value;
-        setSearchTerm(value);
-
-        if (
-            chartInstance.current &&
-            value.length >= (OrgChart.MINIMUM_SYMBOLS_IN_SEARCH_INPUT || 3)
-        ) {
-            const results = chartInstance.current.search(
-                value,
-                ["name", "position_title"],
-                ["image"],
-            );
-            setSearchResults(results);
-        } else {
-            setSearchResults([]);
-            if (chartInstance.current) {
-                chartInstance.current.search("");
-            }
-        }
-    }, []);
-
-    const handleSearchResultClick = useCallback((nodeId) => {
-        if (chartInstance.current) {
-            chartInstance.current.center(nodeId);
-            setSearchResults([]);
-            setSearchTerm("");
-            chartInstance.current.ripple(nodeId);
-            chartInstance.current.editUI.show(nodeId, true);
-        }
-    }, []);
-
     return (
         <div>
             <div style={{ marginBottom: "10px" }}>
@@ -261,104 +291,7 @@ const OrgChartComponent = ({ orgData }) => {
                     {isExpanded ? "Collapse All" : "Expand All"}
                 </button>
             </div>
-
-            <div
-                style={{
-                    top: "10px",
-                    right: "10px",
-                    zIndex: 1000,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                    alignItems: "flex-end",
-                }}
-            >
-                <div style={{ position: "relative", width: "250px" }}>
-                    <input
-                        type="text"
-                        placeholder={OrgChart.SEARCH_PLACEHOLDER}
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                    />
-                    {searchResults.length > 0 && (
-                        <ul
-                            style={{
-                                position: "absolute",
-                                top: "100%",
-                                left: 0,
-                                right: 0,
-                                backgroundColor: "white",
-                                border: "1px solid #ccc",
-                                borderRadius: "4px",
-                                maxHeight: "200px",
-                                overflowY: "auto",
-                                zIndex: 1001,
-                                listStyle: "none",
-                                padding: 0,
-                                margin: "5px 0 0 0",
-                                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                            }}
-                        >
-                            {searchResults.map((result) => (
-                                <li
-                                    key={result.id}
-                                    onClick={() =>
-                                        handleSearchResultClick(result.id)
-                                    }
-                                    style={{
-                                        padding: "8px 12px",
-                                        cursor: "pointer",
-                                        borderBottom: "1px solid #eee",
-                                        fontSize: "14px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "10px",
-                                    }}
-                                    className="hover:bg-gray-100"
-                                >
-                                    {result.image && (
-                                        <img
-                                            src={result.image}
-                                            alt={result.name}
-                                            style={{
-                                                width: "30px",
-                                                height: "30px",
-                                                borderRadius: "50%",
-                                                objectFit: "cover",
-                                            }}
-                                        />
-                                    )}
-                                    <div>
-                                        <span
-                                            dangerouslySetInnerHTML={{
-                                                __html:
-                                                    result.__searchMarks ||
-                                                    result.name,
-                                            }}
-                                        />
-                                        {result.position_title && (
-                                            <div
-                                                style={{
-                                                    fontSize: "12px",
-                                                    color: "#666",
-                                                }}
-                                            >
-                                                {result.position_title}
-                                            </div>
-                                        )}
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            </div>
-
-            <div
-                ref={chartRef}
-                style={{ width: "100%", height: "600px", position: "relative" }}
-            />
+            <div ref={chartRef} />
         </div>
     );
 };
