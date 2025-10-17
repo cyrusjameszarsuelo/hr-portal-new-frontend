@@ -229,18 +229,23 @@ export default function FunctionalDropdownItem({
                                             }`}
                                         >
                                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                                <div className="flex items-center flex-wrap gap-x-2">
-                                                    <span className="text-red-700 font-semibold">
-                                                        Description:
-                                                    </span>
-                                                    <span className="text-gray-800 ml-1">
-                                                        {descHighlighted && searchTerm ? highlightSearchTerm(desc.label, searchTerm) : desc.label}
-                                                    </span>
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center flex-wrap gap-x-2">
+                                                        <span className="text-red-700 font-semibold">
+                                                            Description:
+                                                        </span>
+                                                        <span className="text-gray-800 ml-1">
+                                                            {descHighlighted && searchTerm ? highlightSearchTerm(desc.label, searchTerm) : desc.label}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-sm text-gray-600">
+                                                        Last updated: {desc.updated_at || 'N/A'}
+                                                    </div>
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <button
                                                         type="button"
-                                                        className="inline-flex items-center gap-2 px-3 py-2 bg-black text-white font-semibold rounded-lg shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 transition-all duration-200 text-sm"
+                                                        className="inline-flex items-center gap-2 px-3 py-2 bg-black text-white font-semibold rounded-lg shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 transition-all duration-200 text-sm flex-shrink-0 whitespace-nowrap"
                                                         onClick={() => toggleDescriptionDetails(idx)}
                                                     >
                                                         <svg
@@ -264,7 +269,7 @@ export default function FunctionalDropdownItem({
                                                     {isDetailsVisible && (
                                                         <button
                                                             type="button"
-                                                            className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm"
+                                                            className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm flex-shrink-0 whitespace-nowrap"
                                                             onClick={() => handleDescriptionEdit(desc.descriptionId)}
                                                         >
                                                             <svg
@@ -297,6 +302,7 @@ export default function FunctionalDropdownItem({
                                             </div>
                                         </div>
                                     );
+
                                 })}
                             </div>
                         </div>

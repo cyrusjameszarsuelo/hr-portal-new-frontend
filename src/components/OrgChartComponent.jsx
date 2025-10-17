@@ -1,17 +1,19 @@
-import { useEffect, useRef, useState, useCallback } from "react"; // Import useCallback
-import OrgChart from "../assets/js/orgchart.js"; // Assuming this path is correct
+import { useEffect, useRef, useState, useCallback } from "react";
+import OrgChart from "../assets/js/orgchart.js";
 import {
     addOrgNode,
     deleteOrgNode,
     updateOrgStructure,
+    uploadImage,
 } from "../utils/org_structure";
 
-const OrgChartComponent = ({ orgData }) => {
+const OrgChartComponent = ({ orgData, refetch }) => {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(""); // State for custom search input
-    const [searchResults, setSearchResults] = useState([]); // State for search results
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const nodeIdToCenterOnRedraw = useRef(null); // New ref to store the ID for centering
     const BASE_URL = `${import.meta.env.VITE_API_URL}/storage/`;
 
     const processedOrgData = orgData.map((node) => ({
@@ -21,13 +23,16 @@ const OrgChartComponent = ({ orgData }) => {
         Department: node.department,
     }));
 
-    OrgChart.SEARCH_PLACEHOLDER = "Search for employee..."; // No longer needed for custom input
+    OrgChart.SEARCH_PLACEHOLDER = "Search for employee...";
 
     OrgChart.templates.filtered = Object.assign({}, OrgChart.templates.base);
     OrgChart.templates.filtered.size = [0, 0];
     OrgChart.templates.filtered.node = "";
     OrgChart.templates.filtered.field_0 = "";
     OrgChart.templates.filtered.img_0 = "";
+    OrgChart.templates.filtered.link = "";
+    OrgChart.templates.filtered.plus = ""; // Add this line
+    OrgChart.templates.filtered.minus = ""; // Add this line
 
     OrgChart.templates.redTemplate = Object.assign({}, OrgChart.templates.ana);
     OrgChart.templates.redTemplate.node =
@@ -47,16 +52,20 @@ const OrgChartComponent = ({ orgData }) => {
         }
 
         const chart = new OrgChart(chartRef.current, {
-            mouseScrool: OrgChart.action.zoom,
+            mouseScrool: OrgChart.isMobile()
+                ? OrgChart.action.zoom
+                : OrgChart.action.ctrlZoom,
+            enableDragDrop: true,
             orientation: OrgChart.isMobile()
-                ? OrgChart.orientation.left
-                : OrgChart.orientation.top,
+                ? window.matchMedia("(orientation: landscape)").matches
+                    ? OrgChart.orientation.top // Mobile in landscape
+                    : OrgChart.orientation.left // Mobile in portrait
+                : OrgChart.orientation.top, // Desktop (non-mobile)
             nodeBinding: {
                 field_0: "name",
                 field_1: "position_title",
                 img_0: "image",
             },
-            // searchFields: ["name", "position_title"], // No longer needed for built-in search UI
             nodes: processedOrgData,
             collapse: { level: 2, allChildren: true },
             tags: {
@@ -99,6 +108,7 @@ const OrgChartComponent = ({ orgData }) => {
             },
             enableSearch: false,
             editForm: {
+                addMore: null,
                 photoBinding: "image",
                 buttons: {
                     share: null,
@@ -126,6 +136,12 @@ const OrgChartComponent = ({ orgData }) => {
                     },
                     { type: "textbox", label: "Company", binding: "company" },
                     { type: "textbox", label: "Email", binding: "email" },
+                    {
+                        type: "textbox",
+                        label: "Photo Url",
+                        binding: "image",
+                        btn: "Upload",
+                    },
                 ],
             },
         });
@@ -135,7 +151,6 @@ const OrgChartComponent = ({ orgData }) => {
         chart.on("init", () => {
             chart.fit();
             setIsExpanded(false);
-
             setTimeout(() => {
                 if (chartInstance.current && chartInstance.current.filterUI) {
                     chartInstance.current.filterUI.hide();
@@ -143,11 +158,50 @@ const OrgChartComponent = ({ orgData }) => {
             }, 0);
         });
 
+        // Store the node ID when the expand/collapse button is clicked
+        chart.onExpandCollapseButtonClick(function (args) {
+            nodeIdToCenterOnRedraw.current = args.id; // Store the ID
+        });
+
+        // Center the node AFTER the chart has finished redrawing
+        chart.onRedraw(function () {
+            if (nodeIdToCenterOnRedraw.current) {
+                this.center(nodeIdToCenterOnRedraw.current, null, () => {
+                    nodeIdToCenterOnRedraw.current = null;
+                });
+            }
+        });
+
+        chart.editUI.on("element-btn-click", function (sender, args) {
+            OrgChart.fileUploadDialog(async function (file) {
+                var formData = new FormData();
+                formData.append("image", file);
+                formData.append("id", args.nodeId);
+
+                try {
+                    const response = await uploadImage(formData);
+                    const newImageUrl = BASE_URL + response.image_path;
+
+                    const imageInput = chart.element.querySelector(
+                        `input[data-binding="image"]`,
+                    );
+                    if (imageInput) {
+                        imageInput.value = newImageUrl;
+                        // Optionally, update the photo preview in the header if photoBinding is used
+                        sender.setAvatar(newImageUrl);
+                    }
+                } catch (error) {
+                    console.error("Error uploading image:", error);
+                }
+            });
+        });
+
         chart.onUpdateNode(function (args) {
             const oldData = args.oldData;
             const newData = args.newData;
             console.log("Node Updated:", { oldData, newData });
             updateOrgStructure(newData);
+            refetch();
         });
 
         chart.onRemoveNode(function (args) {
@@ -357,7 +411,7 @@ const OrgChartComponent = ({ orgData }) => {
 
             <div
                 ref={chartRef}
-                style={{ width: "100%", height: "600px", position: "relative" }}
+                style={{ width: "100%", height: "700px", position: "relative" }}
             />
         </div>
     );

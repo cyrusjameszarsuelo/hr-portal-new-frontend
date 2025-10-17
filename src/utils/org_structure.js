@@ -39,3 +39,38 @@ export async function addOrgNode(nodeId) {
         throw error;
     }
 }
+
+export async function getHeadCount() {
+    try {
+        const response = await api.get("/get-head-count");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching head count:", error);
+        throw error;
+    }
+}
+
+export async function getHeadCountPerDept() {
+    try {
+        const response = await api.get("/get-count-per-position");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching head count:", error);
+        throw error;
+    }
+}
+
+export async function uploadImage(formData) {
+    try {
+        const response = await api.post("/upload-image", formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Error uploading image:", error);
+        throw error;
+    }
+}

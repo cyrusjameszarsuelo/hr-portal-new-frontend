@@ -16,6 +16,8 @@ export default function Auth() {
         }
     }, [navigate]);
 
+    console.log(import.meta.env.VITE_API_URL);
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#231F20]">
             <div className="w-full max-w-md mx-4 p-8 rounded-lg shadow-lg bg-[#2b2c2b] text-[#dcdbdb]">
