@@ -5,52 +5,53 @@ export default function Auth() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Assumption: authentication state is represented by a token in localStorage or sessionStorage.
-        // Adjust keys to match your backend (e.g. 'access_token', 'token', 'ms365_token').
-        const token =
-            localStorage.getItem("access_token");
-
-        if (token) {
-            // If the user is already authenticated, redirect to the app root.
-            navigate("/", { replace: true });
-        }
+        // If already authenticated, redirect to app root.
+        const token = localStorage.getItem("access_token");
+        if (token) navigate("/", { replace: true });
     }, [navigate]);
 
-    console.log(import.meta.env.VITE_API_URL);
+    const handleMicrosoftSignIn = () => {
+        window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/redirect`;
+    };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#231F20]">
-            <div className="w-full max-w-md mx-4 p-8 rounded-lg shadow-lg bg-[#2b2c2b] text-[#dcdbdb]">
-                <div className="text-center mb-6">
-                    <h1 className="text-2xl font-semibold">Welcome to HR Portal</h1>
-                    <p className="mt-2 text-sm text-[#dcdbdb]/80">Sign in with your Microsoft 365 account</p>
-                </div>
+        <div className="min-h-screen flex flex-col md:flex-row">
+            {/* Left panel */}
+            <div className="w-full md:w-1/2 flex items-center justify-center bg-white p-32">
+                <div className="w-full max-w-max px-6 py-16 md:py-20 text-center">
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#333333]">Login to MEGANet</h1>
+                    <p className="mt-4 text-sm md:text-base text-gray-500">Use your corporate Microsoft 365 account to access your account and protected resources.</p>
 
-                <button
-                    type="button"
-                    onClick={() => (window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/redirect`)}
-                    className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-md bg-[#ee3124] hover:bg-[#d22a1f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ee3124]/50 transition-colors"
-                    aria-label="Sign in with Microsoft 365"
-                >
-                    <svg
-                        className="w-6 h-6"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true"
+                    <p className="mt-8 text-sm text-gray-400">Click the button below to get started.</p>
+
+                    <button
+                        type="button"
+                        onClick={handleMicrosoftSignIn}
+                        className="mt-6 w-full md:w-3/4 inline-flex items-center justify-center gap-3 py-3 md:py-4 px-4 md:px-6 rounded-md bg-[#e93a2e] hover:bg-[#d6352a] text-white mx-auto shadow"
+                        aria-label="Login with your Microsoft Account"
                     >
-                        <rect x="1" y="1" width="10" height="10" fill="#fff" />
-                        <rect x="13" y="1" width="10" height="10" fill="#f2f2f2" />
-                        <rect x="1" y="13" width="10" height="10" fill="#bfbfbf" />
-                        <rect x="13" y="13" width="10" height="10" fill="#737373" />
-                    </svg>
-                    <span className="font-medium">Sign in with Microsoft 365</span>
-                </button>
+                        {/* Microsoft colored tile */}
+                        <span className="w-6 h-6 inline-block flex-shrink-0">
+                            <svg viewBox="0 0 24 24" className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <rect x="0" y="0" width="11" height="11" fill="#f35325" />
+                                <rect x="13" y="0" width="11" height="11" fill="#81bc06" />
+                                <rect x="0" y="13" width="11" height="11" fill="#05a6f0" />
+                                <rect x="13" y="13" width="11" height="11" fill="#ffba08" />
+                            </svg>
+                        </span>
+                        <span className="font-medium">Login with your Microsoft Account</span>
+                    </button>
 
-                <p className="mt-4 text-xs text-[#dcdbdb]/60 text-center">
-                    Use your corporate Microsoft 365 account to access the portal.
-                </p>
+                    <div className="mt-6 text-sm text-gray-400 px-4 md:px-6">
+                        By continuing you agree to the company's Terms of Use and Privacy Policy. Only Microsoft 365 accounts issued by your organization are allowed to sign in.
+                    </div>
+                </div>
             </div>
+
+                <div
+                    className="w-full md:w-1/2 flex-1 min-h-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url('/src/assets/images/construction-silhouette.jpg')`, backgroundSize: 'cover' }}
+                />
         </div>
     );
 }

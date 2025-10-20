@@ -13,6 +13,7 @@ import DynamicTable from "./DynamicTable";
 import {
     deleteFunction,
     reorderSubfunctions,
+    reorderDescriptions,
 } from "../utils/functional_structure";
 import useUser from "../contexts/useUser";
 import { getAuditLogs } from "../utils/audit_logs";
@@ -142,11 +143,11 @@ export default function FunctionalDropdownItem({
         items: descriptions,
         setItems: setDescriptions,
         dragOver: descDragOver,
-        // description drag handlers removed while reorder is disabled
-        // onDragStart: handleDescDragStart,
-        // onDragOver: handleDescDragOver,
-        // onDrop: handleDescDrop,
-        // onDragEnd: handleDescDragEnd,
+        // description drag handlers (enabled)
+        onDragStart: handleDescDragStart,
+        onDragOver: handleDescDragOver,
+        onDrop: handleDescDrop,
+        onDragEnd: handleDescDragEnd,
     } = useDraggableList(descInitial);
 
     useEffect(
@@ -267,28 +268,28 @@ export default function FunctionalDropdownItem({
     );
 
     // persistDescOrder is commented out while description reordering is disabled.
-    // const persistDescOrder = useCallback(
-    //     async (items, prev) => {
-    //         try {
-    //             const orderedIds = items.map((d) => d.descriptionId || d.id);
-    //             // console.log('persistDescOrder request', { parentId: data.subfunction_id || data.id, orderedIds });
-    //             await reorderDescriptions(
-    //                 data.subfunction_id || data.id,
-    //                 orderedIds,
-    //             );
-    //             if (typeof refetch === "function") await refetch();
-    //             if (typeof onReorder === "function") onReorder(items, data);
-    //         } catch (err) {
-    //             console.error("persistDescOrder failed", err, {
-    //                 parent: data,
-    //                 items,
-    //                 prev,
-    //             });
-    //             throw err;
-    //         }
-    //     },
-    //     [data, refetch, onReorder],
-    // );
+    const persistDescOrder = useCallback(
+        async (items, prev) => {
+            try {
+                const orderedIds = items.map((d) => d.descriptionId || d.id);
+                // console.debug('persistDescOrder request', { parentId: data.subfunction_id || data.id, orderedIds });
+                await reorderDescriptions(
+                    data.subfunction_id || data.id,
+                    orderedIds,
+                );
+                if (typeof refetch === "function") await refetch();
+                if (typeof onReorder === "function") onReorder(items, data);
+            } catch (err) {
+                console.error("persistDescOrder failed", err, {
+                    parent: data,
+                    items,
+                    prev,
+                });
+                throw err;
+            }
+        },
+        [data, refetch, onReorder],
+    );
 
     // Wire draggable list drop handlers to persistence functions
     const onSubDrop = useCallback(
@@ -298,7 +299,13 @@ export default function FunctionalDropdownItem({
         },
         [handleSubDrop, persistSubOrder],
     );
-    // onDescDrop removed while description reorder is disabled.
+    const onDescDrop = useCallback(
+        (e, idx) => {
+            console.debug("onDescDrop called", { idx });
+            return handleDescDrop(e, idx, persistDescOrder);
+        },
+        [handleDescDrop, persistDescOrder],
+    );
 
     // Highlight helper
     const highlightSearchTerm = (text, term) => {
@@ -546,82 +553,146 @@ export default function FunctionalDropdownItem({
                                         ? "opacity-70 border-2 border-dashed border-gray-300 rounded"
                                         : "";
                                 return (
-                                        <div
-                                        className={`flex-1 p-3 mb-2 bg-white border border-gray-200 rounded shadow-sm ${
-                                            descHighlighted
-                                                ? "bg-gray-200 transition-all duration-300"
-                                                : ""
-                                        } ${dragOverClass}`}
+                                    <div
+                                        key={desc.paramId ?? idx}
+                                        className={`mb-3 sm:flex sm:items-start sm:gap-2 sm:w-full ${dragOverClass}`}
                                     >
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                            <div className="flex flex-col gap-1">
-                                                <div className="flex items-center flex-wrap gap-x-2">
-                                                    <span className="text-red-700 font-semibold">
-                                                        Description:
-                                                    </span>
-                                                    <span className="text-gray-800 ml-1">
-                                                        {descHighlighted &&
-                                                        searchTerm
-                                                            ? highlightSearchTerm(
-                                                                  desc.label,
-                                                                  searchTerm,
-                                                              )
-                                                            : desc.label}
-                                                    </span>
+                                        <div
+                                            draggable
+                                            onDragStart={(e) =>
+                                                handleDescDragStart(e, idx)
+                                            }
+                                            onDragOver={(e) =>
+                                                handleDescDragOver(e, idx)
+                                            }
+                                            onDrop={(e) => onDescDrop(e, idx)}
+                                            onDragEnd={handleDescDragEnd}
+                                            className="hidden sm:flex items-center justify-center w-8 h-8 bg-gray-100 rounded cursor-grab"
+                                            title="Drag to reorder"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-4 w-4 text-gray-600"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={2}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M4 7h16M4 12h16M4 17h16"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div
+                                            className={`flex-1 p-3 bg-white border border-gray-200 rounded shadow-sm ${
+                                                descHighlighted
+                                                    ? "bg-gray-200 transition-all duration-300"
+                                                    : ""
+                                            }`}
+                                        >
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center flex-wrap gap-x-2">
+                                                        <span className="text-red-700 font-semibold">
+                                                            Description:
+                                                        </span>
+                                                        <span className="text-gray-800 ml-1">
+                                                            {descHighlighted &&
+                                                            searchTerm
+                                                                ? highlightSearchTerm(
+                                                                      desc.label,
+                                                                      searchTerm,
+                                                                  )
+                                                                : desc.label}
+                                                        </span>
+                                                    </div>
+                                                    {/* <div className="text-sm text-gray-600">View Logs</div> */}
                                                 </div>
-                                                {/* <div className="text-sm text-gray-600">View Logs</div> */}
-                                            </div>
-                                            <div className="flex flex-wrap gap-2 mb-2 items-center">
-                                                <button
-                                                    type="button"
-                                                    className="inline-flex items-center gap-2 px-3 py-2 bg-black text-white font-semibold rounded-lg shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 transition-all duration-200 text-sm"
-                                                    onClick={() =>
-                                                        toggleDescriptionDetails(
-                                                            idx,
-                                                        )
-                                                    }
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className={`h-4 w-4 transform transition-transform duration-200 ${
-                                                            isDetailsVisible
-                                                                ? "rotate-180"
-                                                                : ""
-                                                        }`}
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                        strokeWidth={2}
+                                                <div className="flex flex-wrap items-center gap-2 justify-end">
+                                                    <button
+                                                        type="button"
+                                                        className="inline-flex items-center gap-2 px-3 py-2 bg-black text-white font-semibold rounded-lg shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 transition-all duration-200 text-sm flex-shrink-0 min-w-[96px] justify-center"
+                                                        onClick={() =>
+                                                            toggleDescriptionDetails(
+                                                                idx,
+                                                            )
+                                                        }
                                                     >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            d="M19 9l-7 7-7-7"
-                                                        />
-                                                    </svg>
-                                                    <span className="truncate">
-                                                        {isDetailsVisible
-                                                            ? "See less"
-                                                            : "See more"}
-                                                    </span>
-                                                </button>
-                                                {isDetailsVisible &&
-                                                    jobTitle &&
-                                                    (jobTitle.includes(
-                                                        "admin",
-                                                    ) ||
-                                                        jobTitle.includes(
-                                                            "hr",
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            className={`h-4 w-4 transform transition-transform duration-200 ${
+                                                                isDetailsVisible
+                                                                    ? "rotate-180"
+                                                                    : ""
+                                                            }`}
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M19 9l-7 7-7-7"
+                                                            />
+                                                        </svg>
+                                                        <span>
+                                                            {isDetailsVisible
+                                                                ? "See less"
+                                                                : "See more"}
+                                                        </span>
+                                                    </button>
+                                                    {isDetailsVisible &&
+                                                        jobTitle &&
+                                                        (jobTitle.includes(
+                                                            "admin",
                                                         ) ||
-                                                        jobTitle.includes(
-                                                            "developer",
-                                                        )) && (
+                                                            jobTitle.includes(
+                                                                "hr",
+                                                            ) ||
+                                                            jobTitle.includes(
+                                                                "developer",
+                                                            )) && (
+                                                            <button
+                                                                type="button"
+                                                                className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm flex-shrink-0"
+                                                                onClick={() =>
+                                                                    handleDescriptionEdit(
+                                                                        desc.paramId,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    className="h-4 w-4"
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828A2 2 0 019 17H7v-2a2 2 0 01.586-1.414z"
+                                                                    />
+                                                                </svg>
+                                                                <span>
+                                                                    Edit
+                                                                </span>
+                                                            </button>
+                                                        )}
+                                                    {isDetailsVisible && (
                                                         <button
                                                             type="button"
-                                                            className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm"
+                                                            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-200 text-sm"
                                                             onClick={() =>
-                                                                handleDescriptionEdit(
-                                                                    desc.paramId,
+                                                                openAuditModal(
+                                                                    desc,
                                                                 )
                                                             }
                                                         >
@@ -636,48 +707,24 @@ export default function FunctionalDropdownItem({
                                                                 <path
                                                                     strokeLinecap="round"
                                                                     strokeLinejoin="round"
-                                                                    d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828A2 2 0 019 17H7v-2a2 2 0 01.586-1.414z"
+                                                                    d="M3 10h4l3 8 4-16 3 8h4"
                                                                 />
                                                             </svg>
-                                                            <span className="truncate">Edit</span>
+                                                            <span>
+                                                                Audit Trail
+                                                            </span>
                                                         </button>
                                                     )}
-                                                {isDetailsVisible && (
-                                                    <button
-                                                        type="button"
-                                                        className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-200 text-sm"
-                                                        onClick={() =>
-                                                            openAuditModal(desc)
-                                                        }
-                                                    >
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            className="h-4 w-4"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
-                                                            strokeWidth={2}
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                d="M3 10h4l3 8 4-16 3 8h4"
-                                                            />
-                                                        </svg>
-                                                        <span className="truncate">Audit Trail</span>
-                                                    </button>
-                                                )}
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div
-                                            className={`overflow-hidden transition-all duration-300 ${
-                                                isDetailsVisible
-                                                    ? "max-h-screen opacity-100 mt-3"
-                                                    : "max-h-0 opacity-0"
-                                            }`}
-                                        >
-                                            <div className="w-full overflow-x-auto">
+                                            <div
+                                                className={`overflow-hidden transition-all duration-300 ${
+                                                    isDetailsVisible
+                                                        ? "max-h-screen opacity-100 mt-3"
+                                                        : "max-h-0 opacity-0"
+                                                }`}
+                                            >
                                                 <DynamicTable data={desc} />
                                             </div>
                                         </div>
@@ -711,7 +758,7 @@ export default function FunctionalDropdownItem({
                                         }
                                         onDrop={(e) => onSubDrop(e, idx)}
                                         onDragEnd={handleSubDragEnd}
-                                        className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded cursor-grab"
+                                        className="hidden sm:flex items-center justify-center w-8 h-8 bg-gray-100 rounded cursor-grab"
                                         title="Drag to reorder"
                                         onClick={(e) => e.stopPropagation()}
                                     >

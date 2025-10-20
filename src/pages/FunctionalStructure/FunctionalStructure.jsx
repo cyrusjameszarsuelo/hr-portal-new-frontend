@@ -272,7 +272,7 @@ export default function FunctionalStructure() {
                             onDragOver={(e) => handleDragOver(e, idx)}
                             onDrop={(e) => handleDrop(e, idx)}
                             onDragEnd={handleDragEnd}
-                            className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded cursor-grab"
+                            className="hidden sm:flex items-center justify-center w-8 h-8 bg-gray-100 rounded cursor-grab"
                             title="Drag to reorder"
                             onClick={(e) => e.stopPropagation()}
                         >
