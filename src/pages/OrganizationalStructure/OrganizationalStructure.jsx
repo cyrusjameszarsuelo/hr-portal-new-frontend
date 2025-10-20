@@ -54,7 +54,7 @@ export default function OrganizationalStructure() {
                 </div>
                 <button
                     type="button"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#ee3124] text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 w-auto text-sm sm:ml-auto self-start sm:self-auto"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#ee3124] text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm sm:ml-auto self-start w-32"
                     onClick={() => setIsModalOpen(true)}
                     aria-label="Open plantilla modal"
                 >

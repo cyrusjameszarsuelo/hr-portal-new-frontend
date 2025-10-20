@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from "react";
 import Title from "../../components/Title";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getFunctionalStructure, reorderFunctions } from "../../utils/functional_structure";
+import { getFunctionalStructure } from "../../utils/functional_structure";
 import { Loading, Error } from "../../components/LoadingError";
 import FunctionalDropdownItem from "../../components/FunctionalDropdownItem";
 import FunctionalStructureSearch from "../../components/FunctionalStructureSearch";
@@ -19,7 +19,7 @@ export default function FunctionalStructure() {
     } = useQuery({
         queryKey: ["functional-structure"],
         queryFn: getFunctionalStructure,
-        refetchOnWindowFocus: true, 
+        refetchOnWindowFocus: true,
     });
 
     // State management
@@ -29,15 +29,6 @@ export default function FunctionalStructure() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isAllExpanded, setIsAllExpanded] = useState(false);
     const refsMap = useRef({});
-    // Local mutable list for drag/reorder of level-0 functions
-    const [functionsList, setFunctionsList] = useState(() => (functionData ? [...functionData] : []));
-    const dragSrc = useRef(null);
-    const [dragOver, setDragOver] = useState(null);
-
-    // Keep local list in sync when query data changes
-    React.useEffect(() => {
-        setFunctionsList(functionData ? [...functionData] : []);
-    }, [functionData]);
 
     // Handle level 0 toggle - can handle both single and multiple open items
     const handleLevel0Toggle = useCallback((itemData, shouldOpen) => {
@@ -123,65 +114,6 @@ export default function FunctionalStructure() {
         }
     }, [isAllExpanded, functionData]);
 
-    // (No top-level drag handlers here; top-level functions are rendered directly below)
-    // Drag handlers for level-0 function reorder
-    const handleDragStart = useCallback((e, idx) => {
-        e.stopPropagation();
-        dragSrc.current = idx;
-        try {
-            e.dataTransfer.setData("text/plain", String(idx));
-            e.dataTransfer.effectAllowed = "move";
-        } catch {
-            // ignore
-        }
-    }, []);
-
-    const handleDragOver = useCallback((e, idx) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDragOver(idx);
-    }, []);
-
-    const handleDrop = useCallback(
-        async (e, idx) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const src =
-                dragSrc.current != null
-                    ? dragSrc.current
-                    : Number(e.dataTransfer.getData("text/plain"));
-            if (isNaN(src) || src === idx) {
-                setDragOver(null);
-                dragSrc.current = null;
-                return;
-            }
-            const prev = Array.from(functionsList);
-            const copy = Array.from(functionsList);
-            const [moved] = copy.splice(src, 1);
-            copy.splice(idx, 0, moved);
-            setFunctionsList(copy);
-            setDragOver(null);
-            dragSrc.current = null;
-
-            // Persist new order for top-level functions using reorderFunctions
-            const orderedIds = copy.map((i) => i.id || i.subfunction_id);
-            try {
-                await reorderFunctions(orderedIds);
-                if (typeof refetch === "function") await refetch();
-            } catch (err) {
-                console.error("Failed to persist top-level reorder", err);
-                // revert
-                setFunctionsList(prev);
-            }
-        },
-        [functionsList, refetch],
-    );
-
-    const handleDragEnd = useCallback((e) => {
-        e.stopPropagation();
-        setDragOver(null);
-        dragSrc.current = null;
-    }, []);
     // Navigate to add function page
     const handleAdd = useCallback(() => {
         navigate("/manage-function/add-function");
@@ -252,59 +184,29 @@ export default function FunctionalStructure() {
                 onClearSearch={handleClearSearch}
             />
 
-            {/* Function Items (draggable at top level) */}
-            {functionsList?.map((data, idx) => {
+            {/* Function Items */}
+            {functionData?.map((data, idx) => {
                 const itemId = data.id || data.subfunction_id;
-                const uniqueItemId = itemId.toString();
-
+                const uniqueItemId = itemId.toString(); // Level 0 items use simple ID since no parent
+                
                 // Determine if this item should be open based on current mode
-                const isItemOpen = isAllExpanded
+                const isItemOpen = isAllExpanded 
                     ? openLevel0Items.has(uniqueItemId)
                     : openLevel0ItemId === uniqueItemId;
-
-                const dragOverClass = dragOver === idx ? "opacity-70 border-2 border-dashed border-gray-300 rounded" : "";
-
+                
                 return (
-                    <div key={uniqueItemId} className={`mb-2 flex ${dragOverClass}`}>
-                        <div
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, idx)}
-                            onDragOver={(e) => handleDragOver(e, idx)}
-                            onDrop={(e) => handleDrop(e, idx)}
-                            onDragEnd={handleDragEnd}
-                            className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded cursor-grab"
-                            title="Drag to reorder"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 text-gray-600"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M4 7h16M4 12h16M4 17h16"
-                                />
-                            </svg>
-                        </div>
-                        <div className="flex-1 w-full">
-                            <FunctionalDropdownItem
-                                data={data}
-                                level={0}
-                                searchTargetId={searchTargetId}
-                                searchTerm={searchTerm}
-                                onRef={handleRef}
-                                parentPath={[]}
-                                refetch={refetch}
-                                isOpen={isItemOpen}
-                                onToggle={handleLevel0Toggle}
-                            />
-                        </div>
-                    </div>
+                    <FunctionalDropdownItem
+                        key={idx}
+                        data={data}
+                        level={0}
+                        searchTargetId={searchTargetId}
+                        searchTerm={searchTerm}
+                        onRef={handleRef}
+                        parentPath={[]}
+                        refetch={refetch}
+                        isOpen={isItemOpen}
+                        onToggle={handleLevel0Toggle}
+                    />
                 );
             })}
         </section>

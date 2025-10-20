@@ -15,7 +15,9 @@ import {
     ChartPieIcon,
     CursorArrowRaysIcon,
     FingerPrintIcon,
+    PowerIcon,
     SquaresPlusIcon,
+    UserCircleIcon,
     XMarkIcon,
 } from "@heroicons/react/24/outline";
 import {
@@ -26,40 +28,9 @@ import {
 import { useState } from "react";
 import logo from "../assets/images/megawide-logo.png";
 import icon from "../assets/images/megawide-icon.png";
-import { Link } from "react-router";
-
-// const products = [
-//     {
-//         name: "Analytics",
-//         description: "Get a better understanding of your traffic",
-//         href: "#",
-//         icon: ChartPieIcon,
-//     },
-//     {
-//         name: "Engagement",
-//         description: "Speak directly to your customers",
-//         href: "#",
-//         icon: CursorArrowRaysIcon,
-//     },
-//     {
-//         name: "Security",
-//         description: "Your customers’ data will be safe and secure",
-//         href: "#",
-//         icon: FingerPrintIcon,
-//     },
-//     {
-//         name: "Integrations",
-//         description: "Connect with third-party tools",
-//         href: "#",
-//         icon: SquaresPlusIcon,
-//     },
-//     {
-//         name: "Automations",
-//         description: "Build strategic funnels that will convert",
-//         href: "#",
-//         icon: ArrowPathIcon,
-//     },
-// ];
+import { Link, useNavigate } from "react-router";
+import useUser from "../contexts/useUser";
+import { logout } from "../utils/auth";
 // const callsToAction = [
 //     { name: "Watch demo", href: "#", icon: PlayCircleIcon },
 //     { name: "Contact sales", href: "#", icon: PhoneIcon },
@@ -67,7 +38,63 @@ import { Link } from "react-router";
 
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { user } = useUser();
+    const userName = user ? user.name : null;
+    const navigate = useNavigate();
+    const [loggingOut, setLoggingOut] = useState(false);
 
+    const handleLogout = async () => {
+        if (loggingOut) return;
+        setLoggingOut(true);
+        try {
+            await logout(user?.id);
+        } catch (e) {
+            console.warn('logout failed', e);
+        }
+        try {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user_id");
+        } catch (e) {
+            console.warn('failed clearing storage', e);
+        }
+        // navigate to auth (replace so back doesn't return)
+        navigate("/auth", { replace: true });
+    };
+
+    const handleMyProfile = () => {
+        console.log("My Profile clicked");
+    };
+
+    const products = [
+        {
+            name: "My Profile",
+            onClick: handleMyProfile,
+            icon: UserCircleIcon,
+        },
+        {
+            name: "Logout",
+            onClick: handleLogout,
+            icon: PowerIcon,
+        },
+        // {
+        //     name: "Security",
+        //     description: "Your customers’ data will be safe and secure",
+        //     href: "#",
+        //     icon: FingerPrintIcon,
+        // },
+        // {
+        //     name: "Integrations",
+        //     description: "Connect with third-party tools",
+        //     href: "#",
+        //     icon: SquaresPlusIcon,
+        // },
+        // {
+        //     name: "Automations",
+        //     description: "Build strategic funnels that will convert",
+        //     href: "#",
+        //     icon: ArrowPathIcon,
+        // },
+    ];
     return (
         <header className="bg-white">
             <nav
@@ -91,9 +118,30 @@ export default function Header() {
                     </button>
                 </div>
                 <PopoverGroup className="hidden lg:flex lg:gap-x-12">
-                    {/* <Popover className="relative">
+                    <Link
+                        to="/"
+                        className="text-sm/6 font-semibold text-gray-900"
+                    >
+                        Functional Structure
+                    </Link>
+
+                    <Link
+                        to="org-structure"
+                        className="text-sm/6 font-semibold text-gray-900"
+                    >
+                        Organizational Structure
+                    </Link>
+
+                    {/* <a
+                        href="#"
+                        className="text-sm/6 font-semibold text-gray-900"
+                    >
+                        Company
+                    </a> */}
+
+                    <Popover className="relative">
                         <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900">
-                            Product
+                            {userName ? userName : null}
                             <ChevronDownIcon
                                 aria-hidden="true"
                                 className="size-5 flex-none text-gray-400"
@@ -118,20 +166,26 @@ export default function Header() {
                                         </div>
                                         <div className="flex-auto">
                                             <a
-                                                href={item.href}
+                                                onClick={item.onClick}
                                                 className="block font-semibold text-gray-900"
                                             >
                                                 {item.name}
                                                 <span className="absolute inset-0" />
                                             </a>
-                                            <p className="mt-1 text-gray-600">
-                                                {item.description}
-                                            </p>
+                                            {item.name === 'Logout' && loggingOut && (
+                                                <div className="ml-3 flex items-center text-sm text-gray-600">
+                                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                                    </svg>
+                                                    <span>Logging out...</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                            <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
+                            {/* <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
                                 {callsToAction.map((item) => (
                                     <a
                                         key={item.name}
@@ -145,39 +199,10 @@ export default function Header() {
                                         {item.name}
                                     </a>
                                 ))}
-                            </div>
+                            </div> */}
                         </PopoverPanel>
-                    </Popover> */}
-
-                    <Link
-                        to="/"
-                        className="text-sm/6 font-semibold text-gray-900"
-                    >
-                        Functional Structure
-                    </Link>
-
-                    <Link
-                        to="org-structure"
-                        className="text-sm/6 font-semibold text-gray-900"
-                    >
-                        Organizational Structure
-                    </Link>
-
-                    {/* <a
-                        href="#"
-                        className="text-sm/6 font-semibold text-gray-900"
-                    >
-                        Company
-                    </a> */}
+                    </Popover>
                 </PopoverGroup>
-                {/* <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                    <a
-                        href="#"
-                        className="text-sm/6 font-semibold text-gray-900"
-                    >
-                        Log in <span aria-hidden="true">&rarr;</span>
-                    </a>
-                </div> */}
             </nav>
             <Dialog
                 open={mobileMenuOpen}

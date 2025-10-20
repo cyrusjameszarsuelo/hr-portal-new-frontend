@@ -265,7 +265,7 @@ export default function FunctionalStructure() {
                 const dragOverClass = dragOver === idx ? "opacity-70 border-2 border-dashed border-gray-300 rounded" : "";
 
                 return (
-                    <div key={uniqueItemId} className={`mb-2 flex ${dragOverClass}`}>
+                    <div key={uniqueItemId} className={`mb-2 flex items-start gap-2 ${dragOverClass}`}>
                         <div
                             draggable
                             onDragStart={(e) => handleDragStart(e, idx)}
@@ -291,7 +291,7 @@ export default function FunctionalStructure() {
                                 />
                             </svg>
                         </div>
-                        <div className="flex-1 w-full">
+                        <div className="flex-1">
                             <FunctionalDropdownItem
                                 data={data}
                                 level={0}

@@ -161,7 +161,7 @@ export default function ModalTabs({
                                                     <tr key={key}>
                                                         <td className="px-3 py-2 text-center border border-black">
                                                             {
-                                                                dept.position_title
+                                                                dept.level
                                                             }
                                                         </td>
                                                         <td className="px-3 py-2 text-center border border-black">

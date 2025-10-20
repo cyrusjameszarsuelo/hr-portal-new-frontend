@@ -8,12 +8,13 @@ export default function LoginSuccess() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
+    const user_id = params.get("user_id");
 
     if (token) {
       try {
         localStorage.setItem("access_token", token);
+        localStorage.setItem("user_id", user_id);
         setStatus("success");
-        // small delay so user sees the spinner success state briefly
         setTimeout(() => navigate("/", { replace: true }), 600);
       } catch (err) {
         console.error("Failed to save token:", err);

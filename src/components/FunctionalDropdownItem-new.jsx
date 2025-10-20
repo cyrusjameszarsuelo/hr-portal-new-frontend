@@ -226,11 +226,7 @@ export default function FunctionalDropdownItem({
             const apiResult = await getAuditLogs(desc.paramId);
             // API helper returns response.data; ensure it's an array
             setAuditLogs(
-                Array.isArray(apiResult)
-                    ? apiResult
-                    : apiResult
-                    ? [apiResult]
-                    : [],
+                Array.isArray(apiResult) ? apiResult : apiResult ? [apiResult] : [],
             );
         } catch (err) {
             console.error("Failed to fetch audit logs", err);
@@ -315,8 +311,8 @@ export default function FunctionalDropdownItem({
     // Audit diff renderer: show per-field old vs new and highlight changes
     const parsePossibleJson = (val) => {
         if (val === null || val === undefined) return null;
-        if (typeof val === "object") return val;
-        if (typeof val === "string") {
+        if (typeof val === 'object') return val;
+        if (typeof val === 'string') {
             try {
                 return JSON.parse(val);
             } catch {
@@ -327,15 +323,9 @@ export default function FunctionalDropdownItem({
     };
 
     const formatDateIfPossible = (key, str) => {
-        if (!str && str !== 0) return "";
+        if (!str && str !== 0) return '';
         try {
-            if (
-                typeof str === "string" &&
-                (key === "created_at" ||
-                    key === "updated_at" ||
-                    key === "deleted_at" ||
-                    key.endsWith("_at"))
-            ) {
+            if (typeof str === 'string' && (key === 'created_at' || key === 'updated_at' || key === 'deleted_at' || key.endsWith('_at'))) {
                 const d = new Date(str);
                 if (!isNaN(d.getTime())) return d.toLocaleString();
             }
@@ -350,53 +340,22 @@ export default function FunctionalDropdownItem({
         const newObj = parsePossibleJson(newData) || {};
 
         // If both are not objects, just print them as text
-        if (
-            typeof oldObj !== "object" ||
-            Array.isArray(oldObj) ||
-            typeof newObj !== "object" ||
-            Array.isArray(newObj)
-        ) {
+        if (typeof oldObj !== 'object' || Array.isArray(oldObj) || typeof newObj !== 'object' || Array.isArray(newObj)) {
             return (
                 <div className="space-y-1 text-xs">
-                    <div className="text-gray-600">
-                        Old:{" "}
-                        <span className="font-mono text-xs">
-                            {typeof oldData === "string"
-                                ? oldData
-                                : JSON.stringify(oldData)}
-                        </span>
-                    </div>
-                    <div className="text-gray-800">
-                        New:{" "}
-                        <span className="font-mono text-xs">
-                            {typeof newData === "string"
-                                ? newData
-                                : JSON.stringify(newData)}
-                        </span>
-                    </div>
+                    <div className="text-gray-600">Old: <span className="font-mono text-xs">{typeof oldData === 'string' ? oldData : JSON.stringify(oldData)}</span></div>
+                    <div className="text-gray-800">New: <span className="font-mono text-xs">{typeof newData === 'string' ? newData : JSON.stringify(newData)}</span></div>
                 </div>
             );
         }
 
-        const keys = Array.from(
-            new Set([...Object.keys(oldObj), ...Object.keys(newObj)]),
-        );
+        const keys = Array.from(new Set([...Object.keys(oldObj), ...Object.keys(newObj)]));
         const diffs = keys
             .map((k) => {
                 const o = oldObj[k];
                 const n = newObj[k];
-                const oStr =
-                    o === null || o === undefined
-                        ? ""
-                        : typeof o === "object"
-                        ? JSON.stringify(o)
-                        : formatDateIfPossible(k, o);
-                const nStr =
-                    n === null || n === undefined
-                        ? ""
-                        : typeof n === "object"
-                        ? JSON.stringify(n)
-                        : formatDateIfPossible(k, n);
+                const oStr = o === null || o === undefined ? '' : typeof o === 'object' ? JSON.stringify(o) : formatDateIfPossible(k, o);
+                const nStr = n === null || n === undefined ? '' : typeof n === 'object' ? JSON.stringify(n) : formatDateIfPossible(k, n);
                 if (oStr === nStr) return null;
                 return { key: k, old: oStr, new: nStr };
             })
@@ -409,22 +368,11 @@ export default function FunctionalDropdownItem({
         return (
             <div className="space-y-1 text-xs">
                 {diffs.map((d) => (
-                    <div
-                        key={d.key}
-                        className="flex items-start justify-between gap-4 bg-yellow-50 p-2 rounded border border-yellow-100"
-                    >
-                        <div className="w-40 text-gray-700 font-semibold">
-                            {d.key}
-                        </div>
+                    <div key={d.key} className="flex items-start justify-between gap-4 bg-yellow-50 p-2 rounded border border-yellow-100">
+                        <div className="w-40 text-gray-700 font-semibold">{d.key}</div>
                         <div className="flex-1">
-                            <div className="text-xs text-red-600">
-                                <span className="font-semibold">Old:</span>{" "}
-                                <span className="font-mono">{d.old}</span>
-                            </div>
-                            <div className="text-xs text-green-600">
-                                <span className="font-semibold">New:</span>{" "}
-                                <span className="font-mono">{d.new}</span>
-                            </div>
+                            <div className="text-xs text-red-600"><span className="font-semibold">Old:</span> <span className="font-mono">{d.old}</span></div>
+                            <div className="text-xs text-green-600"><span className="font-semibold">New:</span> <span className="font-mono">{d.new}</span></div>
                         </div>
                     </div>
                 ))}
@@ -525,6 +473,7 @@ export default function FunctionalDropdownItem({
                 className={`overflow-hidden transition-all duration-300 ${
                     isOpen ? "max-h opacity-100" : "max-h-0 opacity-0"
                 }`}
+                style={{ paddingLeft: level * 20 }}
             >
                 {/* Descriptions */}
                 {descriptions && descriptions.length > 0 && (
@@ -546,82 +495,146 @@ export default function FunctionalDropdownItem({
                                         ? "opacity-70 border-2 border-dashed border-gray-300 rounded"
                                         : "";
                                 return (
-                                        <div
-                                        className={`flex-1 p-3 mb-2 bg-white border border-gray-200 rounded shadow-sm ${
-                                            descHighlighted
-                                                ? "bg-gray-200 transition-all duration-300"
-                                                : ""
-                                        } ${dragOverClass}`}
+                                    <div
+                                        key={desc.paramId ?? idx}
+                                        className={`mb-3 flex items-start gap-2 ${dragOverClass}`}
                                     >
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                            <div className="flex flex-col gap-1">
-                                                <div className="flex items-center flex-wrap gap-x-2">
-                                                    <span className="text-red-700 font-semibold">
-                                                        Description:
-                                                    </span>
-                                                    <span className="text-gray-800 ml-1">
-                                                        {descHighlighted &&
-                                                        searchTerm
-                                                            ? highlightSearchTerm(
-                                                                  desc.label,
-                                                                  searchTerm,
-                                                              )
-                                                            : desc.label}
-                                                    </span>
+                                        {/* <div
+                                            draggable
+                                            onDragStart={(e) =>
+                                                handleDescDragStart(e, idx)
+                                            }
+                                            onDragOver={(e) =>
+                                                handleDescDragOver(e, idx)
+                                            }
+                                            onDrop={(e) => onDescDrop(e, idx)}
+                                            onDragEnd={handleDescDragEnd}
+                                            className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded cursor-grab"
+                                            title="Drag to reorder"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-4 w-4 text-gray-600"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={2}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M4 7h16M4 12h16M4 17h16"
+                                                />
+                                            </svg>
+                                        </div> */}
+                                        <div
+                                            className={`flex-1 p-3 bg-white border border-gray-200 rounded shadow-sm ${
+                                                descHighlighted
+                                                    ? "bg-gray-200 transition-all duration-300"
+                                                    : ""
+                                            }`}
+                                        >
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center flex-wrap gap-x-2">
+                                                        <span className="text-red-700 font-semibold">
+                                                            Description:
+                                                        </span>
+                                                        <span className="text-gray-800 ml-1">
+                                                            {descHighlighted &&
+                                                            searchTerm
+                                                                ? highlightSearchTerm(
+                                                                      desc.label,
+                                                                      searchTerm,
+                                                                  )
+                                                                : desc.label}
+                                                        </span>
+                                                    </div>
+                                                    {/* <div className="text-sm text-gray-600">View Logs</div> */}
                                                 </div>
-                                                {/* <div className="text-sm text-gray-600">View Logs</div> */}
-                                            </div>
-                                            <div className="flex flex-wrap gap-2 mb-2 items-center">
-                                                <button
-                                                    type="button"
-                                                    className="inline-flex items-center gap-2 px-3 py-2 bg-black text-white font-semibold rounded-lg shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 transition-all duration-200 text-sm"
-                                                    onClick={() =>
-                                                        toggleDescriptionDetails(
-                                                            idx,
-                                                        )
-                                                    }
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className={`h-4 w-4 transform transition-transform duration-200 ${
-                                                            isDetailsVisible
-                                                                ? "rotate-180"
-                                                                : ""
-                                                        }`}
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                        strokeWidth={2}
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        className="inline-flex items-center gap-2 px-3 py-2 bg-black text-white font-semibold rounded-lg shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 transition-all duration-200 text-sm flex-shrink-0 whitespace-nowrap"
+                                                        onClick={() =>
+                                                            toggleDescriptionDetails(
+                                                                idx,
+                                                            )
+                                                        }
                                                     >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            d="M19 9l-7 7-7-7"
-                                                        />
-                                                    </svg>
-                                                    <span className="truncate">
-                                                        {isDetailsVisible
-                                                            ? "See less"
-                                                            : "See more"}
-                                                    </span>
-                                                </button>
-                                                {isDetailsVisible &&
-                                                    jobTitle &&
-                                                    (jobTitle.includes(
-                                                        "admin",
-                                                    ) ||
-                                                        jobTitle.includes(
-                                                            "hr",
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            className={`h-4 w-4 transform transition-transform duration-200 ${
+                                                                isDetailsVisible
+                                                                    ? "rotate-180"
+                                                                    : ""
+                                                            }`}
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M19 9l-7 7-7-7"
+                                                            />
+                                                        </svg>
+                                                        <span>
+                                                            {isDetailsVisible
+                                                                ? "See less"
+                                                                : "See more"}
+                                                        </span>
+                                                    </button>
+                                                    {isDetailsVisible &&
+                                                        jobTitle &&
+                                                        (jobTitle.includes(
+                                                            "admin",
                                                         ) ||
-                                                        jobTitle.includes(
-                                                            "developer",
-                                                        )) && (
+                                                            jobTitle.includes(
+                                                                "hr",
+                                                            ) ||
+                                                            jobTitle.includes(
+                                                                "developer",
+                                                            )) && (
+                                                            <button
+                                                                type="button"
+                                                                className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm flex-shrink-0 whitespace-nowrap"
+                                                                onClick={() =>
+                                                                    handleDescriptionEdit(
+                                                                        desc.paramId,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    className="h-4 w-4"
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828A2 2 0 019 17H7v-2a2 2 0 01.586-1.414z"
+                                                                    />
+                                                                </svg>
+                                                                <span>
+                                                                    Edit
+                                                                </span>
+                                                            </button>
+                                                        )}
+                                                    {isDetailsVisible && (
                                                         <button
                                                             type="button"
-                                                            className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm"
+                                                            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-200 text-sm flex-shrink-0 whitespace-nowrap"
                                                             onClick={() =>
-                                                                handleDescriptionEdit(
-                                                                    desc.paramId,
+                                                                openAuditModal(
+                                                                    desc,
                                                                 )
                                                             }
                                                         >
@@ -636,48 +649,24 @@ export default function FunctionalDropdownItem({
                                                                 <path
                                                                     strokeLinecap="round"
                                                                     strokeLinejoin="round"
-                                                                    d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828A2 2 0 019 17H7v-2a2 2 0 01.586-1.414z"
+                                                                    d="M3 10h4l3 8 4-16 3 8h4"
                                                                 />
                                                             </svg>
-                                                            <span className="truncate">Edit</span>
+                                                            <span>
+                                                                Audit Trail
+                                                            </span>
                                                         </button>
                                                     )}
-                                                {isDetailsVisible && (
-                                                    <button
-                                                        type="button"
-                                                        className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-200 text-sm"
-                                                        onClick={() =>
-                                                            openAuditModal(desc)
-                                                        }
-                                                    >
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            className="h-4 w-4"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
-                                                            strokeWidth={2}
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                d="M3 10h4l3 8 4-16 3 8h4"
-                                                            />
-                                                        </svg>
-                                                        <span className="truncate">Audit Trail</span>
-                                                    </button>
-                                                )}
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div
-                                            className={`overflow-hidden transition-all duration-300 ${
-                                                isDetailsVisible
-                                                    ? "max-h-screen opacity-100 mt-3"
-                                                    : "max-h-0 opacity-0"
-                                            }`}
-                                        >
-                                            <div className="w-full overflow-x-auto">
+                                            <div
+                                                className={`overflow-hidden transition-all duration-300 ${
+                                                    isDetailsVisible
+                                                        ? "max-h-screen opacity-100 mt-3"
+                                                        : "max-h-0 opacity-0"
+                                                }`}
+                                            >
                                                 <DynamicTable data={desc} />
                                             </div>
                                         </div>
@@ -699,7 +688,7 @@ export default function FunctionalDropdownItem({
                             return (
                                 <div
                                     key={`${currentPath.join("-")}-${idx}`}
-                                    className={`mb-2 flex  ${dragOverClass}`}
+                                    className={`mb-2 flex items-start gap-2 ${dragOverClass}`}
                                 >
                                     <div
                                         draggable
@@ -730,7 +719,7 @@ export default function FunctionalDropdownItem({
                                             />
                                         </svg>
                                     </div>
-                                    <div className="flex-1 w-10">
+                                    <div className="flex-1">
                                         <FunctionalDropdownItem
                                             data={sub}
                                             level={level + 1}
@@ -820,10 +809,7 @@ export default function FunctionalDropdownItem({
                                         {log.action}
                                     </div>
                                     <div className="mt-2">
-                                        {renderAuditDiff(
-                                            log.old_data,
-                                            log.new_data,
-                                        )}
+                                        {renderAuditDiff(log.old_data, log.new_data)}
                                     </div>
                                 </div>
                             ))}

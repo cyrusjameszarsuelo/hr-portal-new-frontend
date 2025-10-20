@@ -80,3 +80,42 @@ export async function deleteFunction(data) {
         throw error;
     }
 }
+
+export async function reorderSubfunctions(parentId, orderedIds) {
+    try {
+        const response = await api.post(`/reorder-subfunctions`, {
+            parent_id: parentId,
+            ordered_ids: orderedIds,
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error reordering subfunctions for parent ${parentId}:`, error);
+        throw error;
+    }
+}
+
+export async function reorderDescriptions(parentId, orderedIds) {
+    try {
+        const response = await api.post(`/reorder-descriptions`, {
+            parent_id: parentId,
+            ordered_ids: orderedIds,
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error reordering descriptions for parent ${parentId}:`, error);
+        throw error;
+    }
+}
+
+export async function reorderFunctions(orderedIds) {
+    try {
+        // Top-level functions don't have a parent_id; endpoint expects only ordered_ids
+        const response = await api.post(`/reorder-functions`, {
+            ordered_ids: orderedIds,
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error reordering functions:`, error);
+        throw error;
+    }
+}
