@@ -74,3 +74,25 @@ export async function uploadImage(formData) {
         throw error;
     }
 }
+
+export async function getUserProfile(email) {
+    try {
+        const response = await api.get(`/user-profile/${email}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        throw error;
+    }
+}
+
+// Fetch direct reports/team members for a given user
+export async function getTeamMembers(id) {
+    try {
+        // Adjust the endpoint if your backend differs
+        const response = await api.get(`/team-members/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching team members:", error);
+        throw error;
+    }
+}

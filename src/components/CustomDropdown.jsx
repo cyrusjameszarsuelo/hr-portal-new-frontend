@@ -10,7 +10,7 @@ export default function CustomDropdown({ label, children, ...props }) {
                 className={
                     `flex-1 text-left ${
                         props.level > 0 ? "text-gray-600" : " font-bold "
-                    }` + (props.open ? "text-red-600" : "")
+                    }` + (props.open ? "text-[#ee3124]" : "")
                 }
             >
                 {label}

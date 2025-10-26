@@ -6,6 +6,7 @@ import {
     updateOrgStructure,
     uploadImage,
 } from "../utils/org_structure";
+import CustomModal from "./CustomModal";
 
 const OrgChartComponent = ({ orgData, refetch }) => {
     const chartRef = useRef(null);
@@ -15,6 +16,8 @@ const OrgChartComponent = ({ orgData, refetch }) => {
     const [searchResults, setSearchResults] = useState([]);
     const nodeIdToCenterOnRedraw = useRef(null); // New ref to store the ID for centering
     const BASE_URL = `${import.meta.env.VITE_API_URL}/storage/`;
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [confirmNodeId, setConfirmNodeId] = useState(null);
 
     const processedOrgData = orgData.map((node) => ({
         ...node,
@@ -24,6 +27,10 @@ const OrgChartComponent = ({ orgData, refetch }) => {
     }));
 
     OrgChart.SEARCH_PLACEHOLDER = "Search for employee...";
+    OrgChart.EDITFORM_CLOSE_BTN =
+        '<div data-edit-from-close style="position: absolute; margin: 14px; font-size: 34px; text-align:right;  cursor: pointer;">' +
+        OrgChart.icon.close(32, 32, "#ffffff") +
+        "</div>";
 
     OrgChart.templates.filtered = Object.assign({}, OrgChart.templates.base);
     OrgChart.templates.filtered.size = [0, 0];
@@ -53,7 +60,9 @@ const OrgChartComponent = ({ orgData, refetch }) => {
 
         const chart = new OrgChart(chartRef.current, {
             mouseScrool: OrgChart.isMobile()
-                ? OrgChart.action.zoom
+                ? window.matchMedia("(orientation: landscape)").matches
+                    ? OrgChart.action.scroll // Mobile in landscape
+                    : OrgChart.action.zoom // Mobile in portrait
                 : OrgChart.action.ctrlZoom,
             enableDragDrop: true,
             orientation: OrgChart.isMobile()
@@ -205,8 +214,12 @@ const OrgChartComponent = ({ orgData, refetch }) => {
         });
 
         chart.onRemoveNode(function (args) {
-            const removedNode = args;
-            deleteOrgNode(removedNode.id);
+            const removedNodeId = args.id;
+            // Open our custom confirmation modal instead of window.confirm
+            setConfirmNodeId(removedNodeId);
+            setIsConfirmOpen(true);
+            // Return false to pause/remove until user confirms
+            return false;
         });
 
         return () => {
@@ -215,7 +228,31 @@ const OrgChartComponent = ({ orgData, refetch }) => {
                 chartInstance.current = null;
             }
         };
-    }, [orgData]);
+    }, [orgData, processedOrgData, BASE_URL, refetch]);
+
+    // Confirm modal handlers
+    const handleConfirmDelete = async () => {
+        if (!confirmNodeId) return;
+        try {
+            await deleteOrgNode(confirmNodeId);
+            setIsConfirmOpen(false);
+            setConfirmNodeId(null);
+            if (typeof refetch === "function") refetch();
+            // If chart instance exists, remove node visually
+            if (chartInstance.current) {
+                chartInstance.current.removeNode(confirmNodeId);
+            }
+        } catch (err) {
+            console.error("Failed to delete node", err);
+            setIsConfirmOpen(false);
+            setConfirmNodeId(null);
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setIsConfirmOpen(false);
+        setConfirmNodeId(null);
+    };
 
     const handleToggleExpandCollapse = () => {
         if (!chartInstance.current) return;
@@ -287,6 +324,31 @@ const OrgChartComponent = ({ orgData, refetch }) => {
 
     return (
         <div>
+            <CustomModal
+                isOpen={isConfirmOpen}
+                onClose={handleCancelDelete}
+                title="Confirm delete"
+            >
+                <div className="p-4">
+                    <p className="text-gray-700 mb-4">
+                        Are you sure you want to delete this employee?
+                    </p>
+                    <div className="flex justify-end gap-2">
+                        <button
+                            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                            onClick={handleCancelDelete}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                            onClick={handleConfirmDelete}
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </CustomModal>
             <div style={{ marginBottom: "10px" }}>
                 <button
                     type="button"
@@ -411,7 +473,8 @@ const OrgChartComponent = ({ orgData, refetch }) => {
 
             <div
                 ref={chartRef}
-                style={{ width: "100%", height: "700px", position: "relative" }}
+                style={{ width: "100%", position: "relative" }}
+                className="org-chart"
             />
         </div>
     );

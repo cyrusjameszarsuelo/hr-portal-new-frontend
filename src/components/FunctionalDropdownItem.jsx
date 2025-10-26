@@ -16,7 +16,6 @@ import {
     reorderDescriptions,
 } from "../utils/functional_structure";
 import useUser from "../contexts/useUser";
-import { getAuditLogs } from "../utils/audit_logs";
 
 function useDraggableList(initial = []) {
     const [items, setItems] = useState(() => (initial ? [...initial] : []));
@@ -214,34 +213,7 @@ export default function FunctionalDropdownItem({
     const toggleDescriptionDetails = (idx) =>
         setShowDescriptionDetails((p) => ({ ...p, [idx]: !p[idx] }));
 
-    // Audit trail modal state
-    const [auditModalOpen, setAuditModalOpen] = useState(false);
-    const [auditLogs, setAuditLogs] = useState([]);
-    const [auditLoading, setAuditLoading] = useState(false);
-    const [auditError, setAuditError] = useState(null);
-    const openAuditModal = async (desc) => {
-        // console.log();
-        setAuditError(null);
-        setAuditLoading(true);
-        try {
-            const apiResult = await getAuditLogs(desc.paramId);
-            // API helper returns response.data; ensure it's an array
-            setAuditLogs(
-                Array.isArray(apiResult)
-                    ? apiResult
-                    : apiResult
-                    ? [apiResult]
-                    : [],
-            );
-        } catch (err) {
-            console.error("Failed to fetch audit logs", err);
-            setAuditError(String(err));
-            setAuditLogs([]);
-        } finally {
-            setAuditLoading(false);
-            setAuditModalOpen(true);
-        }
-    };
+    // Audit logs were consolidated to a dedicated page; per-item audit UI removed.
 
     // Persist helpers
     const persistSubOrder = useCallback(
@@ -319,125 +291,7 @@ export default function FunctionalDropdownItem({
         return text;
     };
 
-    // Audit diff renderer: show per-field old vs new and highlight changes
-    const parsePossibleJson = (val) => {
-        if (val === null || val === undefined) return null;
-        if (typeof val === "object") return val;
-        if (typeof val === "string") {
-            try {
-                return JSON.parse(val);
-            } catch {
-                return val;
-            }
-        }
-        return val;
-    };
-
-    const formatDateIfPossible = (key, str) => {
-        if (!str && str !== 0) return "";
-        try {
-            if (
-                typeof str === "string" &&
-                (key === "created_at" ||
-                    key === "updated_at" ||
-                    key === "deleted_at" ||
-                    key.endsWith("_at"))
-            ) {
-                const d = new Date(str);
-                if (!isNaN(d.getTime())) return d.toLocaleString();
-            }
-        } catch {
-            // fallthrough to string
-        }
-        return String(str);
-    };
-
-    const renderAuditDiff = (oldData, newData) => {
-        const oldObj = parsePossibleJson(oldData) || {};
-        const newObj = parsePossibleJson(newData) || {};
-
-        // If both are not objects, just print them as text
-        if (
-            typeof oldObj !== "object" ||
-            Array.isArray(oldObj) ||
-            typeof newObj !== "object" ||
-            Array.isArray(newObj)
-        ) {
-            return (
-                <div className="space-y-1 text-xs">
-                    <div className="text-gray-600">
-                        Old:{" "}
-                        <span className="font-mono text-xs">
-                            {typeof oldData === "string"
-                                ? oldData
-                                : JSON.stringify(oldData)}
-                        </span>
-                    </div>
-                    <div className="text-gray-800">
-                        New:{" "}
-                        <span className="font-mono text-xs">
-                            {typeof newData === "string"
-                                ? newData
-                                : JSON.stringify(newData)}
-                        </span>
-                    </div>
-                </div>
-            );
-        }
-
-        const keys = Array.from(
-            new Set([...Object.keys(oldObj), ...Object.keys(newObj)]),
-        );
-        const diffs = keys
-            .map((k) => {
-                const o = oldObj[k];
-                const n = newObj[k];
-                const oStr =
-                    o === null || o === undefined
-                        ? ""
-                        : typeof o === "object"
-                        ? JSON.stringify(o)
-                        : formatDateIfPossible(k, o);
-                const nStr =
-                    n === null || n === undefined
-                        ? ""
-                        : typeof n === "object"
-                        ? JSON.stringify(n)
-                        : formatDateIfPossible(k, n);
-                if (oStr === nStr) return null;
-                return { key: k, old: oStr, new: nStr };
-            })
-            .filter(Boolean);
-
-        if (!diffs.length) {
-            return <div className="text-sm text-gray-600">No changes</div>;
-        }
-
-        return (
-            <div className="space-y-1 text-xs">
-                {diffs.map((d) => (
-                    <div
-                        key={d.key}
-                        className="flex items-start justify-between gap-4 bg-yellow-50 p-2 rounded border border-yellow-100"
-                    >
-                        <div className="w-40 text-gray-700 font-semibold">
-                            {d.key}
-                        </div>
-                        <div className="flex-1">
-                            <div className="text-xs text-red-600">
-                                <span className="font-semibold">Old:</span>{" "}
-                                <span className="font-mono">{d.old}</span>
-                            </div>
-                            <div className="text-xs text-green-600">
-                                <span className="font-semibold">New:</span>{" "}
-                                <span className="font-mono">{d.new}</span>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    };
+    // Audit diff rendering logic removed — audit viewing moved to centralized page.
 
     return (
         <div
@@ -554,7 +408,7 @@ export default function FunctionalDropdownItem({
                                         : "";
                                 return (
                                     <div
-                                        key={desc.paramId ?? idx}
+                                        key={desc.id ?? idx}
                                         className={`mb-3 sm:flex sm:items-start sm:gap-2 sm:w-full ${dragOverClass}`}
                                     >
                                         <div
@@ -609,7 +463,6 @@ export default function FunctionalDropdownItem({
                                                                 : desc.label}
                                                         </span>
                                                     </div>
-                                                    {/* <div className="text-sm text-gray-600">View Logs</div> */}
                                                 </div>
                                                 <div className="flex flex-wrap items-center gap-2 justify-end">
                                                     <button
@@ -686,35 +539,6 @@ export default function FunctionalDropdownItem({
                                                                 </span>
                                                             </button>
                                                         )}
-                                                    {isDetailsVisible && (
-                                                        <button
-                                                            type="button"
-                                                            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-200 text-sm"
-                                                            onClick={() =>
-                                                                openAuditModal(
-                                                                    desc,
-                                                                )
-                                                            }
-                                                        >
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-4 w-4"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                                strokeWidth={2}
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    d="M3 10h4l3 8 4-16 3 8h4"
-                                                                />
-                                                            </svg>
-                                                            <span>
-                                                                Audit Trail
-                                                            </span>
-                                                        </button>
-                                                    )}
                                                 </div>
                                             </div>
 
@@ -825,67 +649,6 @@ export default function FunctionalDropdownItem({
                             onClick={handleDelete}
                         >
                             Delete
-                        </button>
-                    </div>
-                </div>
-            </CustomModal>
-            {/* Audit Trail Modal */}
-            <CustomModal
-                isOpen={auditModalOpen}
-                onClose={() => setAuditModalOpen(false)}
-                title="Audit Trail"
-            >
-                <div className="p-4">
-                    {auditLoading ? (
-                        <div className="text-gray-600">
-                            Loading audit logs...
-                        </div>
-                    ) : auditError ? (
-                        <div className="text-red-600">{auditError}</div>
-                    ) : auditLogs && auditLogs.length > 0 ? (
-                        <div className="space-y-3">
-                            {auditLogs.map((log) => (
-                                <div
-                                    key={log.id}
-                                    className="p-3 bg-gray-50 border border-gray-200 rounded"
-                                >
-                                    <div className="text-sm text-gray-600 mb-1">
-                                        {new Date(
-                                            log.created_at,
-                                        ).toLocaleString()}
-                                    </div>
-                                    <div className="text-sm">
-                                        <span className="font-semibold">
-                                            User:
-                                        </span>{" "}
-                                        {log.user.name}
-                                    </div>
-                                    <div className="text-sm">
-                                        <span className="font-semibold">
-                                            Action:
-                                        </span>{" "}
-                                        {log.action}
-                                    </div>
-                                    <div className="mt-2">
-                                        {renderAuditDiff(
-                                            log.old_data,
-                                            log.new_data,
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-gray-600">
-                            No audit logs available.
-                        </div>
-                    )}
-                    <div className="flex justify-end mt-4">
-                        <button
-                            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                            onClick={() => setAuditModalOpen(false)}
-                        >
-                            Close
                         </button>
                     </div>
                 </div>

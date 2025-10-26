@@ -20,11 +20,11 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-    // Ensure backend receives the user_id on POST requests when available
+    // Ensure backend receives the user_id on POST and PUT requests when available
     try {
       const uid = localStorage.getItem('user_id');
       const method = (config.method || '').toLowerCase();
-      if (method === 'post' && uid) {
+      if ((method === 'post' || method === 'put' || method === 'delete') && uid) {
         // If the request is FormData, append the field
         if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
           config.data.append('user_id', uid);
@@ -61,7 +61,7 @@ api.interceptors.request.use(
       }
     } catch (err) {
       // Do not block requests if localStorage access or parsing fails
-      console.warn('Could not attach user_id to POST request', String(err));
+      console.warn('Could not attach user_id to POST/PUT request', String(err));
     }
     return config;
   },

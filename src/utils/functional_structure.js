@@ -38,6 +38,16 @@ export async function getSubFunctionById(id) {
     }
 }
 
+export async function getAllSubFunctions() {
+    try {
+        const response = await api.get(`/subfunctions`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching all Subfunctions:`, error);
+        throw error;
+    }
+}
+
 export async function manageFunction(data) {
     try {
         const response = await api.post("/manage-function", data);

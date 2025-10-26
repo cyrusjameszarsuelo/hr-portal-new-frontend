@@ -28,7 +28,7 @@ import {
 import { useState } from "react";
 import logo from "../assets/images/megawide-logo.png";
 import icon from "../assets/images/megawide-icon.png";
-import { Link, useNavigate } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 import useUser from "../contexts/useUser";
 import { logout } from "../utils/auth";
 // const callsToAction = [
@@ -39,7 +39,7 @@ import { logout } from "../utils/auth";
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { user } = useUser();
-    const userName = user ? user.name : null;
+    // const userName = user ? user.name : null;
     const navigate = useNavigate();
     const [loggingOut, setLoggingOut] = useState(false);
 
@@ -49,52 +49,52 @@ export default function Header() {
         try {
             await logout(user?.id);
         } catch (e) {
-            console.warn('logout failed', e);
+            console.warn("logout failed", e);
         }
         try {
             localStorage.removeItem("access_token");
             localStorage.removeItem("user_id");
         } catch (e) {
-            console.warn('failed clearing storage', e);
+            console.warn("failed clearing storage", e);
         }
         // navigate to auth (replace so back doesn't return)
         navigate("/auth", { replace: true });
     };
 
-    const handleMyProfile = () => {
-        console.log("My Profile clicked");
-    };
+    // const handleMyProfile = () => {
+    //     navigate("/my-profile");
+    // };
 
-    const products = [
-        {
-            name: "My Profile",
-            onClick: handleMyProfile,
-            icon: UserCircleIcon,
-        },
-        {
-            name: "Logout",
-            onClick: handleLogout,
-            icon: PowerIcon,
-        },
-        // {
-        //     name: "Security",
-        //     description: "Your customers’ data will be safe and secure",
-        //     href: "#",
-        //     icon: FingerPrintIcon,
-        // },
-        // {
-        //     name: "Integrations",
-        //     description: "Connect with third-party tools",
-        //     href: "#",
-        //     icon: SquaresPlusIcon,
-        // },
-        // {
-        //     name: "Automations",
-        //     description: "Build strategic funnels that will convert",
-        //     href: "#",
-        //     icon: ArrowPathIcon,
-        // },
-    ];
+    // const dropdownUser = [
+    //     {
+    //         name: "My Profile",
+    //         onClick: handleMyProfile,
+    //         icon: UserCircleIcon,
+    //     },
+    //     {
+    //         name: "Logout",
+    //         onClick: handleLogout,
+    //         icon: PowerIcon,
+    //     },
+    //     // {
+    //     //     name: "Security",
+    //     //     description: "Your customers’ data will be safe and secure",
+    //     //     href: "#",
+    //     //     icon: FingerPrintIcon,
+    //     // },
+    //     // {
+    //     //     name: "Integrations",
+    //     //     description: "Connect with third-party tools",
+    //     //     href: "#",
+    //     //     icon: SquaresPlusIcon,
+    //     // },
+    //     // {
+    //     //     name: "Automations",
+    //     //     description: "Build strategic funnels that will convert",
+    //     //     href: "#",
+    //     //     icon: ArrowPathIcon,
+    //     // },
+    // ];
     return (
         <header className="bg-white">
             <nav
@@ -118,28 +118,45 @@ export default function Header() {
                     </button>
                 </div>
                 <PopoverGroup className="hidden lg:flex lg:gap-x-12">
-                    <Link
+                    <NavLink
                         to="/"
-                        className="text-sm/6 font-semibold text-gray-900"
+                        className={({ isActive }) =>
+                            `text-sm/6 font-semibold ${
+                                isActive ? "text-red-700" : "text-gray-900"
+                            }`
+                        }
                     >
                         Functional Structure
-                    </Link>
+                    </NavLink>
 
-                    <Link
+                    <NavLink
                         to="org-structure"
-                        className="text-sm/6 font-semibold text-gray-900"
+                        className={({ isActive }) =>
+                            `text-sm/6 font-semibold ${
+                                isActive ? "text-red-700" : "text-gray-900"
+                            }`
+                        }
                     >
                         Organizational Structure
-                    </Link>
-
-                    {/* <a
-                        href="#"
-                        className="text-sm/6 font-semibold text-gray-900"
+                    </NavLink>
+                    <NavLink
+                        to="my-profile"
+                        className={({ isActive }) =>
+                            `text-sm/6 font-semibold ${
+                                isActive ? "text-red-700" : "text-gray-900"
+                            }`
+                        }
                     >
-                        Company
-                    </a> */}
+                        My Profile
+                    </NavLink>
+                    <a
+                        onClick={handleLogout}
+                        className="text-sm/6 font-semibold text-gray-900 cursor-pointer"
+                    >
+                        Logout
+                    </a>
 
-                    <Popover className="relative">
+                    {/* <Popover className="relative">
                         <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900">
                             {userName ? userName : null}
                             <ChevronDownIcon
@@ -153,15 +170,17 @@ export default function Header() {
                             className="absolute left-1/2 z-10 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-white shadow-lg outline-1 outline-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
                         >
                             <div className="p-4">
-                                {products.map((item) => (
-                                    <div
+                                {dropdownUser.map((item) => (
+                                    <PopoverButton
+                                        as="div"
                                         key={item.name}
-                                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
+                                        className="group relative flex w-full items-center gap-x-6 rounded-lg p-4 text-sm hover:bg-gray-50"
+                                        onClick={item.onClick}
                                     >
                                         <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
                                             <item.icon
                                                 aria-hidden="true"
-                                                className="size-6 text-gray-600 group-hover:text-indigo-600"
+                                                className="size-6 text-gray-600 group-hover:text-red-700"
                                             />
                                         </div>
                                         <div className="flex-auto">
@@ -172,20 +191,39 @@ export default function Header() {
                                                 {item.name}
                                                 <span className="absolute inset-0" />
                                             </a>
-                                            {item.name === 'Logout' && loggingOut && (
-                                                <div className="ml-3 flex items-center text-sm text-gray-600">
-                                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                                                    </svg>
-                                                    <span>Logging out...</span>
-                                                </div>
-                                            )}
+                                            {item.name === "Logout" &&
+                                                loggingOut && (
+                                                    <div className="ml-3 flex items-center text-sm text-gray-600">
+                                                        <svg
+                                                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <circle
+                                                                className="opacity-25"
+                                                                cx="12"
+                                                                cy="12"
+                                                                r="10"
+                                                                stroke="currentColor"
+                                                                strokeWidth="4"
+                                                            ></circle>
+                                                            <path
+                                                                className="opacity-75"
+                                                                fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                                            ></path>
+                                                        </svg>
+                                                        <span>
+                                                            Logging out...
+                                                        </span>
+                                                    </div>
+                                                )}
                                         </div>
-                                    </div>
+                                    </PopoverButton>
                                 ))}
                             </div>
-                            {/* <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
+                            <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
                                 {callsToAction.map((item) => (
                                     <a
                                         key={item.name}
@@ -199,9 +237,9 @@ export default function Header() {
                                         {item.name}
                                     </a>
                                 ))}
-                            </div> */}
+                            </div>
                         </PopoverPanel>
-                    </Popover>
+                    </Popover> */}
                 </PopoverGroup>
             </nav>
             <Dialog
@@ -253,6 +291,7 @@ export default function Header() {
                                 </Disclosure> */}
                                 <Link
                                     to="/"
+                                    onClick={() => setMobileMenuOpen(false)}
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                                 >
                                     Functional Structure
@@ -260,6 +299,7 @@ export default function Header() {
 
                                 <Link
                                     to="org-structure"
+                                    onClick={() => setMobileMenuOpen(false)}
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                                 >
                                     Organizational Structure

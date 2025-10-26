@@ -24,3 +24,22 @@ div.boc-img-button>svg {
     display: inline-block;
     vertical-align: baseline;
 }
+
+/* Fallback for small-screen landscape orientation for the org chart.
+     This applies even if Tailwind orientation variant isn't available at runtime. */
+@media (max-width: 1000px) and (orientation: landscape) {
+    .org-chart {
+        height: 250px !important;
+    }
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+    .org-chart {
+        height: 650px !important;
+    }
+}
+
+/* Ensure default/fallback heights when orientation-specific classes aren't present */
+.org-chart {
+    height: 700px;
+}

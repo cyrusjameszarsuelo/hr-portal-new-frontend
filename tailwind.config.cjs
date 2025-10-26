@@ -8,5 +8,15 @@ module.exports = {
       },
     },
   },
-  // ...
+  variants: {
+    extend: {
+      height: ['portrait', 'landscape'], // ✅ belongs here
+    },
+  },
+  plugins: [
+    function ({ addVariant }) {
+      addVariant('portrait', '@media (orientation: portrait)')  // ✅ correct place
+      addVariant('landscape', '@media (orientation: landscape)')
+    },
+  ],
 }

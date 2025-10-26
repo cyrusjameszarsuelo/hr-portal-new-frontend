@@ -1,14 +1,24 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 import OrgChartComponent from "../../components/OrgChartComponent";
 import Title from "../../components/Title";
-import { getHeadCount, getHeadCountPerDept, getOrgStructure } from "../../utils/org_structure";
+import {
+    getHeadCount,
+    getHeadCountPerDept,
+    getOrgStructure,
+} from "../../utils/org_structure";
 import { Error, Loading } from "../../components/LoadingError";
 import CustomModal from "../../components/CustomModal";
-import React, { useState } from "react";
 import ModalTabs from "../../components/ModalTabs";
+import {
+    ChevronDoubleDownIcon,
+    InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 
 export default function OrganizationalStructure() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     const {
         data: orgStructureData,
@@ -31,7 +41,7 @@ export default function OrganizationalStructure() {
         refetchOnWindowFocus: true,
     });
 
-     const {
+    const {
         data: orgHeadCountPerDept,
         isLoading: isLoadingDept,
         // refetch: refetchDept,
@@ -52,28 +62,28 @@ export default function OrganizationalStructure() {
                 <div className="w-full sm:w-auto">
                     <Title title="Organizational Structure" />
                 </div>
-                <button
-                    type="button"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#ee3124] text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm sm:ml-auto self-start w-32"
-                    onClick={() => setIsModalOpen(true)}
-                    aria-label="Open plantilla modal"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
+
+                <div className="flex gap-3 w-full sm:w-auto">
+                    <button
+                        type="button"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white font-semibold rounded-lg shadow hover:bg-black/75 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm sm:ml-auto self-start w-32"
+                        onClick={() => navigate('/org-structure-audit-logs')}
+                        aria-label="Audit Trails"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                        />
-                    </svg>
-                    Plantilla
-                </button>
+                        <InformationCircleIcon className="h-5 w-5" />
+                        Logs
+                    </button>
+
+                    <button
+                        type="button"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#ee3124] text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm sm:ml-auto self-start w-32"
+                        onClick={() => setIsModalOpen(true)}
+                        aria-label="Open plantilla modal"
+                    >
+                        <ChevronDoubleDownIcon className="h-5 w-5" />
+                        Plantilla
+                    </button>
+                </div>
             </div>
 
             <CustomModal

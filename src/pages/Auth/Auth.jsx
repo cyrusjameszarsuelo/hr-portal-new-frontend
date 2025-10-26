@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
+import construction from '../../assets/images/construction-silhouette.jpg';
 
 export default function Auth() {
     const navigate = useNavigate();
@@ -9,6 +10,8 @@ export default function Auth() {
         const token = localStorage.getItem("access_token");
         if (token) navigate("/", { replace: true });
     }, [navigate]);
+
+    console.log(import.meta.env.VITE_API_URL);
 
     const handleMicrosoftSignIn = () => {
         window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/redirect`;
@@ -31,7 +34,7 @@ export default function Auth() {
                         aria-label="Login with your Microsoft Account"
                     >
                         {/* Microsoft colored tile */}
-                        <span className="w-6 h-6 inline-block flex-shrink-0">
+                        <span className="w-6 h-6 inline-block shrink-0">
                             <svg viewBox="0 0 24 24" className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <rect x="0" y="0" width="11" height="11" fill="#f35325" />
                                 <rect x="13" y="0" width="11" height="11" fill="#81bc06" />
@@ -47,10 +50,9 @@ export default function Auth() {
                     </div>
                 </div>
             </div>
-
                 <div
                     className="w-full md:w-1/2 flex-1 min-h-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url('/src/assets/images/construction-silhouette.jpg')`, backgroundSize: 'cover' }}
+                    style={{ backgroundImage: `url(${construction})`, backgroundSize: 'cover' }}
                 />
         </div>
     );
