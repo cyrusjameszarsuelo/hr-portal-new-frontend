@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { buildDropdownSections } from "../../helper/normalize";
-import JobDescriptionItem from "../JobDescriptionItem";
-import CustomDropdown from "../CustomDropdown";
+import { buildDropdownSections } from "../../../helper/normalize";
+import JobDescriptionItem from "../../../components/JobDescriptionItem";
+import CustomDropdown from "../../../components/CustomDropdown";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export default function JobProfile({ jobProfile }) {
     const title = jobProfile?.position_title;
+    const level = jobProfile?.level;
     const department = jobProfile?.department;
-    const reportsTo = jobProfile?.reporting;
-    const subfunction = jobProfile?.job_profile?.subfunction_position?.name;
+    const reportsTo = jobProfile?.job_profile?.reporting_to?.name;
     const kras = jobProfile?.job_profile?.job_descriptions;
     const performanceStandards =
         jobProfile?.job_profile?.job_performance_standards;
@@ -56,16 +56,11 @@ export default function JobProfile({ jobProfile }) {
                     {title}
                 </h1>
                 <div className="flex flex-wrap gap-2 text-sm">
-                    {subfunction && (
-                        <span className="bg-black/80 text-white px-3 py-1.5 rounded-md font-medium">
-                            Subfunction: {subfunction}
-                        </span>
-                    )}
                     <span className="bg-black/80 text-white px-3 py-1.5 rounded-md font-medium">
                         Department: {department}
                     </span>
                     <span className="bg-black/80 text-white px-3 py-1.5 rounded-md font-medium">
-                        Supervisor / Officer
+                        Position Level: {level}
                     </span>
                     <span className="bg-black/80 text-white px-3 py-1.5 rounded-md font-medium">
                         Reports to: {reportsTo}

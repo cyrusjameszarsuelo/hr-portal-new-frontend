@@ -7,6 +7,7 @@ export default function JobDescriptionItem({
     onToggle = () => {},
     count,
 }) {
+
     return (
         <div
             className={`mb-3 ${level === 0 ? "border-b border-gray-200" : ""}`}
@@ -14,9 +15,24 @@ export default function JobDescriptionItem({
             <div className="w-full flex items-center py-1 px-4">
                 <CustomDropdown
                     label={
-                        <span className="font-semibold">
-                            {count}.0 KRA: {data.kra}
-                        </span>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                                <span className="inline-block px-3 py-1 bg-[#ee3124] text-white text-xs font-bold rounded-full shadow-sm">
+                                    SUBFUNCTION
+                                </span>
+                                <span className="text-base font-bold text-[#ee3124]">
+                                    {data.subfunction_position.name}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2 pl-1">
+                                <span className="text-gray-600 text-sm font-medium">
+                                    {count}.0 KRA:
+                                </span>
+                                <span className="text-gray-900 text-sm font-semibold">
+                                    {data.job_profile_kra.kra}
+                                </span>
+                            </div>
+                        </div>
                     }
                     setOpen={() => onToggle(!open)}
                     open={open}
@@ -65,7 +81,8 @@ export default function JobDescriptionItem({
                                                             scope="col"
                                                             className="px-4 py-3 text-left text-xs font-semibold text-white uppercase"
                                                         >
-                                                            Roles & Responsibilities
+                                                            Duties &
+                                                            Responsibilities
                                                         </th>
                                                         <th
                                                             scope="col"

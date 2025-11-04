@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import OrgChart from "../assets/js/orgchart.js";
 import {
     addOrgNode,
@@ -19,12 +19,12 @@ const OrgChartComponent = ({ orgData, refetch }) => {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [confirmNodeId, setConfirmNodeId] = useState(null);
 
-    const processedOrgData = orgData.map((node) => ({
+    const processedOrgData = useMemo(() => orgData.map((node) => ({
         ...node,
         image: node.image ? BASE_URL + node.image : undefined,
         tags: ["redNode"],
         Department: node.department,
-    }));
+    })), [orgData, BASE_URL]);
 
     OrgChart.SEARCH_PLACEHOLDER = "Search for employee...";
     OrgChart.EDITFORM_CLOSE_BTN =
@@ -228,7 +228,7 @@ const OrgChartComponent = ({ orgData, refetch }) => {
                 chartInstance.current = null;
             }
         };
-    }, [orgData, processedOrgData, BASE_URL, refetch]);
+    }, [orgData, BASE_URL, refetch, processedOrgData]);
 
     // Confirm modal handlers
     const handleConfirmDelete = async () => {
@@ -250,8 +250,8 @@ const OrgChartComponent = ({ orgData, refetch }) => {
     };
 
     const handleCancelDelete = () => {
-        setIsConfirmOpen(false);
-        setConfirmNodeId(null);
+        // setIsConfirmOpen(false);
+        // setConfirmNodeId(null);
     };
 
     const handleToggleExpandCollapse = () => {

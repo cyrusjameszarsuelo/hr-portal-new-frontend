@@ -25,7 +25,7 @@ export default function OrganizationalStructure() {
         isLoading,
         isError,
     } = useQuery({
-        queryKey: ["functional-structure"],
+        queryKey: ["org-structure"],
         queryFn: getOrgStructure,
         refetchOnWindowFocus: true,
     });
@@ -54,7 +54,7 @@ export default function OrganizationalStructure() {
     // Loading and error states
     if (isLoading) return <Loading />;
     if (isError)
-        return <Error message="Failed to load functional structure." />;
+        return <Error message="Failed to load Organizational Structure." />;
 
     return (
         <section className="w-auto p-6 bg-white rounded-lg shadow">

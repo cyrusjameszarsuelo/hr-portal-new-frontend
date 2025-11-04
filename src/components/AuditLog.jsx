@@ -1,3 +1,4 @@
+import { capitalizeFirstLetter } from "../helper/capitalizedFirstLetter";
 import Title from "./Title";
 
 // Utility helpers
@@ -66,10 +67,6 @@ function getChangedFields(oldRaw, newRaw) {
     });
 
     return changed;
-}
-
-function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 export default function AuditLogs({
@@ -167,12 +164,12 @@ export default function AuditLogs({
                             <table className="min-w-full divide-y divide-gray-200 table-auto">
                                 <thead className="bg-[#ee3124]">
                                     <tr>
-                                        <th
+                                        {/* <th
                                             scope="col"
                                             className="px-4 py-3 text-left text-xs font-semibold text-white uppercase"
                                         >
                                             Date
-                                        </th>
+                                        </th> */}
                                         <th
                                             scope="col"
                                             className="px-4 py-3 text-left text-xs font-semibold text-white uppercase"
@@ -243,11 +240,11 @@ export default function AuditLogs({
                                                     key={key}
                                                     className={rowClass}
                                                 >
-                                                    <td className="px-4 py-3 border-r border-gray-200 align-top text-sm text-gray-700 whitespace-pre-wrap">
+                                                    {/* <td className="px-4 py-3 border-r border-gray-200 align-top text-sm text-gray-700 whitespace-pre-wrap">
                                                         {formatDate(
                                                             log.created_at,
                                                         )}
-                                                    </td>
+                                                    </td> */}
                                                     <td className="px-4 py-3 border-r border-gray-200 align-top text-sm text-gray-700 whitespace-pre-wrap">
                                                         {log.user?.name ?? "-"}
                                                     </td>

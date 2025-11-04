@@ -11,7 +11,9 @@ import Auth from "../pages/Auth/Auth";
 import LoginSuccess from "../pages/Auth/LoginSuccess";
 import MyProfile from "../pages/MyProfile/MyProfile";
 import OrganizationalAuditLogs from "../pages/OrganizationalStructure/OrganizationalAuditLogs";
-import ManageProfile from "../pages/MyProfile/ManageProfile";
+import ManageProfile from "../pages/MyProfile/forms/ManageProfile";
+import AllEmployee from "@/pages/MyProfile/all-employee/AllEmployee";
+import SelectedEmployee from "@/pages/MyProfile/all-employee/SelectedEmployee";
 
 export const router = createBrowserRouter([
     {
@@ -32,9 +34,14 @@ export const router = createBrowserRouter([
             },
             { path: "my-profile", element: <MyProfile /> },
             { path: "my-profile/:profileId", element: <ManageProfile /> },
+
+            { path: "all-employees", element: <AllEmployee /> },
+            { path: "employee/:id", element: <SelectedEmployee /> },
+
         ],
     },
 
     { path: "/auth", element: <Auth /> },
     { path: "/login-success", element: <LoginSuccess /> },
+    { path: "*", element: <FunctionalStructure /> },
 ]);

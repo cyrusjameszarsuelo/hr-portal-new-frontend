@@ -38,9 +38,9 @@ export async function getSubFunctionById(id) {
     }
 }
 
-export async function getAllSubFunctions() {
+export async function getAllSubFunctions(department = null) {
     try {
-        const response = await api.get(`/subfunctions`);
+        const response = await api.get(`/subfunction-dept/${department}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching all Subfunctions:`, error);
