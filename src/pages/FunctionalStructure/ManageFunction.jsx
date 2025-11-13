@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Error, Loading } from "../../components/LoadingError";
-import { getFunctionById, manageFunction } from "../../utils/functional_structure";
+import { getFunctionById, manageFunction } from "../../database/functional_structure";
 import { useQuery } from "@tanstack/react-query";
 import Title from "../../components/Title";
+import ConfirmDialog from "../../components/ProfileFormComponents/ConfirmDialog";
 
 function ManageFunction() {
     const navigate = useNavigate();
@@ -25,6 +26,7 @@ function ManageFunction() {
     const [functionState, setFunctionState] = useState(initialFunctionState());
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [confirmState, setConfirmState] = useState({ open: false, title: "", message: "", onConfirm: null });
 
     const { data: functionData, isLoading, isError } = useQuery({
         queryKey: ["function", id],
@@ -98,6 +100,14 @@ function ManageFunction() {
         }));
     };
 
+    const confirmRemoveSubfunction = (idx) =>
+        setConfirmState({
+            open: true,
+            title: "Remove Subfunction",
+            message: "This will remove the subfunction and all its descriptions. Continue?",
+            onConfirm: () => removeSubfunction(idx),
+        });
+
     // Add a description to a subfunction
     const addDescription = (sfIdx) => {
         setFunctionState((prev) => ({
@@ -132,6 +142,14 @@ function ManageFunction() {
             ),
         }));
     };
+
+    const confirmRemoveDescription = (sfIdx, descIdx) =>
+        setConfirmState({
+            open: true,
+            title: "Remove Description",
+            message: "This will remove the selected description. Continue?",
+            onConfirm: () => removeDescription(sfIdx, descIdx),
+        });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -210,7 +228,7 @@ function ManageFunction() {
                                 {functionState.subfunctions.length > 1 && (
                                     <button
                                         type="button"
-                                        onClick={() => removeSubfunction(sfIdx)}
+                                        onClick={() => confirmRemoveSubfunction(sfIdx)}
                                         className="px-2 py-1 text-red-600 hover:text-white hover:bg-red-600 rounded"
                                     >
                                         Remove
@@ -244,10 +262,7 @@ function ManageFunction() {
                                             <button
                                                 type="button"
                                                 onClick={() =>
-                                                    removeDescription(
-                                                        sfIdx,
-                                                        descIdx,
-                                                    )
+                                                    confirmRemoveDescription(sfIdx, descIdx)
                                                 }
                                                 className="px-2 py-1 text-red-600 hover:text-white hover:bg-red-600 rounded"
                                             >
@@ -329,6 +344,21 @@ function ManageFunction() {
                     </div>
                 </div>
             )}
+
+            {/* Confirm Delete Dialog */}
+            <ConfirmDialog
+                open={confirmState.open}
+                title={confirmState.title}
+                message={confirmState.message}
+                onCancel={() => setConfirmState((p) => ({ ...p, open: false }))}
+                onConfirm={() => {
+                    try {
+                        confirmState.onConfirm && confirmState.onConfirm();
+                    } finally {
+                        setConfirmState((p) => ({ ...p, open: false }));
+                    }
+                }}
+            />
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getAuditLogs } from "../../utils/audit_logs";
+import { getAuditLogs } from "../../database/audit_logs";
 import Title from "../../components/Title";
 
 // Helpers

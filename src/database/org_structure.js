@@ -96,3 +96,14 @@ export async function getTeamMembers(id) {
         throw error;
     }
 }
+
+export async function getIndirectReports(id) {
+    try {
+        // Adjust the endpoint if your backend differs
+        const response = await api.get(`/indirect-reporting/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching indirect reports:", error);
+        throw error;
+    }
+}

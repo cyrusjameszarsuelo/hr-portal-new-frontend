@@ -4,7 +4,7 @@ import {
     addOrgNode,
     deleteOrgNode,
     updateOrgStructure,
-} from "../utils/org_structure";
+} from "../database/org_structure.js";
 
 const OrgChartComponent = ({ orgData }) => {
     console.log(OrgChart.isTrial() ? "Trial Version" : "Full Version");

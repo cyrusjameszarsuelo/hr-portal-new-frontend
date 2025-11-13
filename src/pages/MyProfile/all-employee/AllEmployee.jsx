@@ -11,98 +11,140 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DataTable } from "@/components/DataTable/DataTable";
 import { useQuery } from "@tanstack/react-query";
-import { getOrgStructure } from "@/utils/org_structure";
+import { getOrgStructure } from "@/database/org_structure";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
+const BASE_URL = `${import.meta.env.VITE_API_URL}/storage/`;
+
 const getAllEmployeeHeader = ({ navigate }) => {
     return [
-        // {
-        //     accessorKey: "id",
-        //     header: "ID",
-        //     cell: ({ row }) => (
-        //         <div className="capitalize">{row.getValue("id")}</div>
-        //     ),
-        // },
         {
-            accessorKey: "firstname",
-            header: "First Name",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("firstname")}</div>
-            ),
-        },
-        {
-            accessorKey: "lastname",
-            header: "Last Name",
-            cell: ({ row }) => (
-                <div className="capitalize m-2">{row.getValue("lastname")}</div>
-            ),
-        },
-        {
-            accessorKey: "email",
-            header: ({ column }) => {
+            accessorKey: "image",
+            header: () => <div className="text-center m-4">Photo</div>,
+            cell: ({ row }) => {
+                const rowData = row.original;
                 return (
+                    <div className="photo-wrapper p-2">
+                        <img
+                            className="lg:w-16 lg:h-16 w-full h-full rounded-full mx-auto object-cover"
+                            src={
+                                rowData?.image
+                                    ? BASE_URL + rowData.image
+                                    : undefined
+                            }
+                            alt="profile"
+                        />
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: "name",
+            accessorFn: (row) =>
+                `${row.firstname ? row.firstname : ""} ${
+                    row.lastname ? row.lastname : ""
+                }`,
+            header: ({ column }) => (
+                <div className="text-center m-14 lg:m-0">
                     <Button
                         variant="ghost"
                         onClick={() =>
                             column.toggleSorting(column.getIsSorted() === "asc")
                         }
                     >
-                        Email
+                        Name
                         <ArrowUpDown />
                     </Button>
+                </div>
+            ),
+            cell: ({ row }) => (
+                <div className="capitalize font-medium m-2 text-center">
+                    <h3 className="text-center font-bold text-gray-900 mb-2">
+                        {row.original.firstname} {row.original.lastname}
+                    </h3>
+                    <div className="text-center text-gray-400 text-xs font-semibold">
+                        <p>{row.original.position_title}</p>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            accessorKey: "email",
+            header: ({ column }) => {
+                return (
+                    <div className="text-center">
+                        <Button
+                            variant="ghost"
+                            onClick={() =>
+                                column.toggleSorting(
+                                    column.getIsSorted() === "asc",
+                                )
+                            }
+                        >
+                            Email
+                            <ArrowUpDown />
+                        </Button>
+                    </div>
                 );
             },
             cell: ({ row }) => (
-                <div className="lowercase m-2">{row.getValue("email")}</div>
-            ),
-        },
-        {
-            accessorKey: "position_title",
-            header: "Position Title",
-            cell: ({ row }) => (
-                <div className="capitalize m-2">
-                    {row.getValue("position_title")}
+                <div className="font-medium m-2 text-center">
+                    <h3 className="text-center font-bold text-gray-900 mb-2">
+                        {row.getValue("email")}
+                    </h3>
                 </div>
-            ),
-        },
-        {
-            accessorKey: "reporting",
-            header: "Reporting To",
-            cell: ({ row }) => (
-                <div className="capitalize m-2">
-                    {row.getValue("reporting")}
-                </div>
-            ),
-        },
-        {
-            accessorKey: "emp_no",
-            header: "Employee No.",
-            cell: ({ row }) => (
-                <div className="capitalize m-2">{row.getValue("emp_no")}</div>
             ),
         },
         {
             accessorKey: "department",
-            header: "Deparment",
+            header: ({ column }) => (
+                <div className="text-center">
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === "asc")
+                        }
+                    >
+                        Department
+                        <ArrowUpDown />
+                    </Button>
+                </div>
+            ),
             cell: ({ row }) => (
-                <div className="capitalize m-2">
-                    {row.getValue("department")}
+                <div className="font-medium m-2 text-center">
+                    <h3 className="text-center font-bold text-gray-900 mb-2">
+                        {row.getValue("department")}
+                    </h3>
                 </div>
             ),
         },
         {
             accessorKey: "business_unit",
-            header: "Business Unit",
+            header: ({ column }) => (
+                <div className="text-center m-10">
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === "asc")
+                        }
+                    >
+                        Business Unit
+                        <ArrowUpDown />
+                    </Button>
+                </div>
+            ),
             cell: ({ row }) => (
-                <div className="capitalize m-2">
-                    {row.getValue("business_unit")}
+                <div className="font-medium m-2 text-center">
+                    <h3 className="text-center font-bold text-gray-900 mb-2">
+                        {row.getValue("business_unit")}
+                    </h3>
                 </div>
             ),
         },
         {
             id: "actions",
-            enableHiding: false,
+            header: "Actions",
             cell: ({ row }) => {
                 const employeeId = row.original.id;
 
@@ -172,7 +214,7 @@ export default function AllEmployee() {
                 <Title title="All Employees" />
             </div>
             <div className="flex flex-col md:flex-row ">
-                <div className="w-full">
+                <div className="w-full ">
                     <DataTable columns={columns} data={employeeData} />
                 </div>
             </div>

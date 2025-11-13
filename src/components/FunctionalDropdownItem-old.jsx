@@ -4,7 +4,7 @@ import CustomDropdown from "./CustomDropdown";
 import ButtonIcon from "./ButtonIcon";
 import CustomModal from "./CustomModal";
 import DynamicTable from "./DynamicTable";
-import { deleteFunction } from "../utils/functional_structure";
+import { deleteFunction } from "../database/functional_structure";
 
 export default function FunctionalDropdownItem({
     data,

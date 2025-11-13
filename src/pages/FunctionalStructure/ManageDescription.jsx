@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import {
     getDescriptionById,
     manageDescription,
-} from "../../utils/functional_structure";
+} from "../../database/functional_structure";
 import { useEffect, useState } from "react";
 import { Error, Loading } from "../../components/LoadingError";
 import Title from "../../components/Title";

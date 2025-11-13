@@ -5,7 +5,7 @@ import {
     deleteOrgNode,
     updateOrgStructure,
     uploadImage,
-} from "../utils/org_structure";
+} from "../database/org_structure.js";
 import CustomModal from "./CustomModal";
 
 const OrgChartComponent = ({ orgData, refetch }) => {

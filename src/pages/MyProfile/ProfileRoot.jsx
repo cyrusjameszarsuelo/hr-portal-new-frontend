@@ -7,17 +7,22 @@ import {
     PencilIcon,
     PhoneIcon,
     UserPlusIcon,
+    UsersIcon,
+    UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import AboutProfile from "./about/AboutProfile";
 import avatar from "../../assets/images/vacant.png";
 import { useNavigate } from "react-router";
-import { downloadPdfProfile, getMyProfileById } from "../../utils/my_profile";
+import {
+    downloadPdfProfile,
+    getMyProfileById,
+} from "../../database/my_profile";
 import { useEffect, useMemo, useState } from "react";
 import JobProfile from "@/pages/MyProfile/job-profile/JobProfile";
 import Title from "@/components/Title";
-import { getAboutById } from "@/utils/about";
+import { getAboutById } from "@/database/about";
 import { useQuery } from "@tanstack/react-query";
-import { getTeamMembers } from "@/utils/org_structure";
+import { getIndirectReports, getTeamMembers } from "@/database/org_structure";
 import PerformanceManagement from "./performance-management/PerformanceManagement";
 
 export default function ProfileRoot({ orgStructureId }) {
@@ -49,6 +54,14 @@ export default function ProfileRoot({ orgStructureId }) {
         refetchOnWindowFocus: true,
         enabled: !!orgStructureId,
     });
+
+    const { data: indirectMembers, isLoading: _isLoadingIndirectMembers } =
+        useQuery({
+            queryKey: ["indirect-members", orgStructureId],
+            queryFn: () => getIndirectReports(orgStructureId),
+            refetchOnWindowFocus: true,
+            enabled: !!orgStructureId,
+        });
 
     const handleEditProfile = () => {
         const profileId = selectedProfile ? selectedProfile.id : userProfile.id;
@@ -93,9 +106,7 @@ export default function ProfileRoot({ orgStructureId }) {
             {
                 id: "perf",
                 label: "Performance Management",
-                content: (
-                    <PerformanceManagement />
-                ),
+                content: <PerformanceManagement />,
             },
         ];
     }, [userProfile, selectedProfile, aboutProfile, selectedAbout]);
@@ -141,7 +152,7 @@ export default function ProfileRoot({ orgStructureId }) {
 
     return (
         <>
-            <div className="w-full sm:w-auto mb-5 flex items-center justify-between">
+            <div className="w-full sm:w-auto mb-5 flex items-center justify-between px-5">
                 <Title title="My Profile" />
                 <div className="flex items-center gap-2">
                     <button
@@ -167,13 +178,146 @@ export default function ProfileRoot({ orgStructureId }) {
                     </button>
                 </div>
             </div>
-            <div className="flex flex-col md:flex-row ">
+            <div className="flex flex-col md:flex-row">
                 <div className="w-full md:w-96">
                     {profileActive && (
-                        <div className="bg-white border border-gray-200 shadow-xl rounded-lg py-3 px-4">
-                            <div className="photo-wrapper p-2">
+                        <>
+                            {/* Desktop View */}
+                            <div className="bg-white border border-gray-200 shadow-xl rounded-lg py-3 px-4 hidden md:block">
+                                <div className="photo-wrapper p-2">
+                                    <img
+                                        className="w-32 h-32 rounded-full mx-auto object-cover"
+                                        src={
+                                            userProfile?.image
+                                                ? BASE_URL + userProfile.image
+                                                : undefined
+                                        }
+                                        alt="profile"
+                                    />
+                                </div>
+                                <div className="p-2">
+                                    <h3 className="text-center text-2xl text-gray-900 font-medium leading-8">
+                                        {userProfile && userProfile.name}
+                                    </h3>
+                                    <div className="text-center text-gray-400 text-xs font-semibold">
+                                        <p>
+                                            {userProfile &&
+                                                userProfile.position_title}
+                                        </p>
+                                    </div>
+                                    <div className="text-center text-black text-xs font-semibold mt-3 border-2 border-gray-300 w-40 mx-auto rounded-2xl bg-gray-300 p-1">
+                                        ID #00{userProfile && userProfile.emp_no}
+                                    </div>
+
+                                    {userProfile?.job_profile?.reporting_to && (
+                                        <>
+                                            <hr className="m-6 border-gray-300" />
+                                            <p className="text-xs font-bold text-gray-500">
+                                                Reporting To
+                                            </p>
+
+                                            <div className="px-4 py-2 my-3">
+                                                <div className="flex items-center gap-3">
+                                                    <img
+                                                        src={
+                                                            userProfile?.image
+                                                                ? BASE_URL +
+                                                                  userProfile
+                                                                      .job_profile
+                                                                      ?.reporting_to
+                                                                      ?.image
+                                                                : undefined
+                                                        }
+                                                        alt="Reporting to avatar"
+                                                        className="w-10 h-10 rounded-full object-cover"
+                                                    />
+                                                    <div className="ml-3">
+                                                        <div className="text-sm font-semibold text-gray-800">
+                                                            {userProfile &&
+                                                                userProfile
+                                                                    ?.job_profile
+                                                                    ?.reporting_to
+                                                                    ?.name}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500">
+                                                            {userProfile &&
+                                                                userProfile
+                                                                    ?.job_profile
+                                                                    ?.reporting_to
+                                                                    ?.position_title}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <hr className="m-6 border-gray-300" />
+                                    <p className="text-xs font-bold text-gray-500">
+                                        Personal Details
+                                    </p>
+                                    <table className="text-sm my-3 w-full">
+                                        <tbody>
+                                            <tr>
+                                                <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
+                                                    <PhoneIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
+                                                </td>
+                                                <td className="text-sm px-2 py-2">
+                                                    No Available
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
+                                                    <EnvelopeIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
+                                                </td>
+                                                <td className="text-sm px-2 py-2">
+                                                    {userProfile &&
+                                                        userProfile.email}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
+                                                    <MapPinIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
+                                                </td>
+                                                <td className="text-sm px-2 py-2">
+                                                    San Juan City, Metro Manila
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <hr className="m-6 border-gray-300" />
+
+                                    <p className="text-xs font-bold text-gray-500">
+                                        Job Details
+                                    </p>
+                                    <table className="text-sm my-3 w-full">
+                                        <tbody>
+                                            <tr>
+                                                <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
+                                                    <BriefcaseIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
+                                                </td>
+                                                <td className="text-sm px-2 py-2">
+                                                    {userProfile &&
+                                                        userProfile.department}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
+                                                    <UserPlusIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
+                                                </td>
+                                                <td className="text-sm px-2 py-2">
+                                                    {userProfile &&
+                                                        userProfile.level}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {/* Mobile View */}
+                            <div className="bg-white border border-gray-200 shadow-xl rounded-lg py-3 px-4 md:hidden flex items-center gap-3 mx-4">
                                 <img
-                                    className="w-32 h-32 rounded-full mx-auto object-cover"
+                                    className="w-12 h-12 rounded-full object-cover"
                                     src={
                                         userProfile?.image
                                             ? BASE_URL + userProfile.image
@@ -181,126 +325,16 @@ export default function ProfileRoot({ orgStructureId }) {
                                     }
                                     alt="profile"
                                 />
-                            </div>
-                            <div className="p-2">
-                                <h3 className="text-center text-2xl text-gray-900 font-medium leading-8">
-                                    {userProfile && userProfile.name}
-                                </h3>
-                                <div className="text-center text-gray-400 text-xs font-semibold">
-                                    <p>
-                                        {userProfile &&
-                                            userProfile.position_title}
+                                <div className="flex flex-col justify-center">
+                                    <h3 className="text-base font-semibold text-gray-900 leading-5">
+                                        {userProfile && userProfile.name}
+                                    </h3>
+                                    <p className="text-xs text-gray-500 font-medium">
+                                        {userProfile && userProfile.position_title}
                                     </p>
                                 </div>
-                                <div className="text-center text-black text-xs font-semibold mt-3 border-2 border-gray-300 w-40 mx-auto rounded-2xl bg-gray-300 p-1">
-                                    ID #00{userProfile && userProfile.emp_no}
-                                </div>
-
-                                {userProfile?.job_profile?.reporting_to && (
-                                    <>
-                                        <hr className="m-6 border-gray-300" />
-                                        <p className="text-xs font-bold text-gray-500">
-                                            Reporting To
-                                        </p>
-
-                                        <div className="px-4 py-2 my-3">
-                                            <div className="flex items-center gap-3">
-                                                <img
-                                                    src={
-                                                        userProfile?.image
-                                                            ? BASE_URL +
-                                                              userProfile
-                                                                  .job_profile
-                                                                  ?.reporting_to
-                                                                  ?.image
-                                                            : undefined
-                                                    }
-                                                    alt="Reporting to avatar"
-                                                    className="w-10 h-10 rounded-full object-cover"
-                                                />
-                                                <div className="ml-3">
-                                                    <div className="text-sm font-semibold text-gray-800">
-                                                        {userProfile &&
-                                                            userProfile
-                                                                ?.job_profile
-                                                                ?.reporting_to
-                                                                ?.name}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500">
-                                                        {userProfile &&
-                                                            userProfile
-                                                                ?.job_profile
-                                                                ?.reporting_to
-                                                                ?.position_title}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-
-                                <hr className="m-6 border-gray-300" />
-                                <p className="text-xs font-bold text-gray-500">
-                                    Personal Details
-                                </p>
-                                <table className="text-sm my-3 w-full">
-                                    <tbody>
-                                        <tr>
-                                            <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
-                                                <PhoneIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
-                                            </td>
-                                            <td className="text-sm px-2 py-2">
-                                                No Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
-                                                <EnvelopeIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
-                                            </td>
-                                            <td className="text-sm px-2 py-2">
-                                                {userProfile &&
-                                                    userProfile.email}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
-                                                <MapPinIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
-                                            </td>
-                                            <td className="text-sm px-2 py-2">
-                                                San Juan City, Metro Manila
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <hr className="m-6 border-gray-300" />
-
-                                <p className="text-xs font-bold text-gray-500">
-                                    Job Details
-                                </p>
-                                <table className="text-sm my-3 w-full">
-                                    <tbody>
-                                        <tr>
-                                            <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
-                                                <BriefcaseIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
-                                            </td>
-                                            <td className="text-sm px-2 py-2">
-                                                {userProfile &&
-                                                    userProfile.department}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="text-sm px-2 py-2 text-gray-500 font-semibold">
-                                                <UserPlusIcon className="w-4 h-4 inline-block mr-1 text-[#ee3124]" />
-                                            </td>
-                                            <td className="text-sm px-2 py-2">
-                                                {userProfile &&
-                                                    userProfile.level}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
                             </div>
-                        </div>
+                        </>
                     )}
 
                     {!profileActive && (
@@ -365,50 +399,79 @@ export default function ProfileRoot({ orgStructureId }) {
                             )}
                         </div>
                     )}
+                    
 
-                    {teamMembers?.length > 0 && (
-                        <button
-                            className="w-full bg-[#ee3124] hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg mt-4"
-                            onClick={() => setProfileActive((prev) => !prev)}
-                        >
-                            {profileActive
-                                ? `Direct Reporting (${
-                                      teamMembers && teamMembers.length
-                                  })`
-                                : "My Profile"}
-                        </button>
-                    )}
+                    <div className="flex lg:flex-col flex-row gap-2 lg:gap-0 justify-center lg:justify-start mt-4 px-4 lg:px-0">
+                        {teamMembers?.length > 0 && (
+                            <button
+                                className="lg:w-full flex-1 lg:flex-none bg-[#ee3124] hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg lg:mt-0 flex items-center justify-center gap-2"
+                                onClick={() =>
+                                    setProfileActive((prev) => !prev)
+                                }
+                                title={
+                                    profileActive
+                                        ? `Direct Reporting (${teamMembers?.length})`
+                                        : "My Profile"
+                                }
+                            >
+                                <UsersIcon className="w-5 h-5 lg:hidden" />
+                                <span className="lg:hidden text-xs font-semibold">{profileActive ? `Direct Reporting (${teamMembers?.length})` : "My Profile"}</span>
+                                <span className="hidden lg:inline">
+                                    {profileActive
+                                        ? `Direct Reporting (${teamMembers?.length})`
+                                        : "My Profile"}
+                                </span>
+                            </button>
+                        )}
 
-                    {userProfile.dept_head !== 0 && userProfile.dept_head && (
-                        <button className="w-full bg-[#ee3124] hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg mt-4">
-                            Indirect Reporting
-                        </button>
-                    )}
+                        {indirectMembers?.length > 0 &&
+                            userProfile.dept_head !== 0 && (
+                                <button
+                                    className="lg:w-full flex-1 lg:flex-none bg-[#ee3124] hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg lg:mt-4 flex items-center justify-center gap-2"
+                                    // onClick={() => navigate("/indirect-reports")}
+                                    title={`Indirect Reporting (${indirectMembers.length})`}
+                                >
+                                    <UserGroupIcon className="w-5 h-5 lg:hidden" />
+                                    <span className="lg:hidden text-xs font-semibold">Indirect Reporting ({indirectMembers.length})</span>
+                                    <span className="hidden lg:inline">
+                                        Indirect Reporting (
+                                        {indirectMembers.length})
+                                    </span>
+                                </button>
+                            )}
 
-                    {!userProfile?.is_admin && (
-                        <button
-                            className="w-full bg-[#ee3124] hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg mt-4"
-                            onClick={() => navigate("/all-employees")}
-                        >
-                            All Employees
-                        </button>
-                    )}
+                        {!userProfile?.is_admin && (
+                            <button
+                                className="lg:w-full flex-1 lg:flex-none bg-[#ee3124] hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg lg:mt-4 flex items-center justify-center gap-2"
+                                onClick={() => navigate("/all-employees")}
+                                title="All Employees"
+                            >
+                                <UserGroupIcon className="w-5 h-5 lg:hidden" />
+                                <span className="lg:hidden text-xs font-semibold">All Employees</span>
+                                <span className="hidden lg:inline">
+                                    All Employees
+                                </span>
+                            </button>
+                        )}
+                    </div>
                 </div>
 
-                <div className="flex-1 mt-4 md:mt-0 md:ml-6 bg-white border border-gray-200 rounded-lg p-4">
-                    {loadingMember || _isLoadingProfile ? (
-                        <div className="flex items-center justify-center min-h-[400px]">
-                            <div className="relative">
-                                <div className="w-16 h-16 border-4 border-gray-200 border-t-[#ee3124] rounded-full animate-spin"></div>
+                <div className="w-full flex flex-col gap-4 px-5 mt-5 md:mt-0">
+                    <div className="w-full bg-white border border-gray-200 rounded-lg p-4">
+                        {loadingMember || _isLoadingProfile ? (
+                            <div className="flex items-center justify-center min-h-[400px]">
+                                <div className="relative">
+                                    <div className="w-16 h-16 border-4 border-gray-200 border-t-[#ee3124] rounded-full animate-spin"></div>
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <Tabs
-                            tabs={tabDefs}
-                            active={active}
-                            onChange={setActive}
-                        />
-                    )}
+                        ) : (
+                            <Tabs
+                                tabs={tabDefs}
+                                active={active}
+                                onChange={setActive}
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
         </>

@@ -1,4 +1,4 @@
-import CustomDropdown from "./CustomDropdown";
+import CustomDropdown from "../CustomDropdown";
 
 export default function JobDescriptionItem({
     data,
@@ -17,7 +17,7 @@ export default function JobDescriptionItem({
                     label={
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2">
-                                <span className="inline-block px-3 py-1 bg-[#ee3124] text-white text-xs font-bold rounded-full shadow-sm">
+                                <span className="hidden lg:inline-block px-3 py-1 bg-[#ee3124] text-white text-xs font-bold rounded-full shadow-sm">
                                     SUBFUNCTION
                                 </span>
                                 <span className="text-base font-bold text-[#ee3124]">
@@ -75,18 +75,18 @@ export default function JobDescriptionItem({
                                     <div className="inline-block min-w-full align-middle">
                                         <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
                                             <table className="min-w-full divide-y divide-gray-200 table-auto">
-                                                <thead className="bg-[#ee3124]">
+                                                <thead className="bg-[#f3f4f6]">
                                                     <tr>
                                                         <th
                                                             scope="col"
-                                                            className="px-4 py-3 text-left text-xs font-semibold text-white uppercase"
+                                                            className=" px-4 py-3 text-left text-xs font-semibold text-black uppercase"
                                                         >
                                                             Duties &
                                                             Responsibilities
                                                         </th>
                                                         <th
                                                             scope="col"
-                                                            className="px-4 py-3 text-left text-xs font-semibold text-white uppercase"
+                                                            className=" px-4 py-3 text-left text-xs font-semibold text-black uppercase"
                                                         >
                                                             Deliverables
                                                         </th>
@@ -105,7 +105,7 @@ export default function JobDescriptionItem({
                                                                         : "bg-gray-100 hover:bg-red-50"
                                                                 }
                                                             >
-                                                                <td className="px-4 py-3 border-r border-gray-200 align-top text-sm text-gray-700 whitespace-pre-wrap">
+                                                                <td className=" px-4 py-3 border-r border-gray-200 align-top text-sm text-gray-700 whitespace-pre-wrap">
                                                                     <span className="font-bold mr-2">
                                                                         {count}.
                                                                         {rowIndex +
@@ -115,7 +115,7 @@ export default function JobDescriptionItem({
                                                                         row.kra_description
                                                                     }
                                                                 </td>
-                                                                <td className="px-4 py-3 align-top text-sm text-gray-700">
+                                                                <td className=" px-4 py-3 align-top text-sm text-gray-700">
                                                                     {
                                                                         row.deliverables
                                                                     }

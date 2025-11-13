@@ -30,7 +30,7 @@ import logo from "../assets/images/megawide-logo.png";
 import icon from "../assets/images/megawide-icon.png";
 import { Link, NavLink, useNavigate } from "react-router";
 import useUser from "../contexts/useUser";
-import { logout } from "../utils/auth";
+import { logout } from "../database/auth";
 // const callsToAction = [
 //     { name: "Watch demo", href: "#", icon: PlayCircleIcon },
 //     { name: "Contact sales", href: "#", icon: PhoneIcon },
@@ -304,6 +304,19 @@ export default function Header() {
                                 >
                                     Organizational Structure
                                 </Link>
+                                <Link
+                                    to="my-profile"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                                >
+                                    My Profile
+                                </Link>
+                                <a
+                                    onClick={() => handleLogout}
+                                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                                >
+                                    Logout
+                                </a>
                                 {/* <a
                                     href="#"
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"

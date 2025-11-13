@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CustomModal from "../../../components/CustomModal";
+import ConfirmDialog from "../../../components/ProfileFormComponents/ConfirmDialog";
 import FormActionBar from "../../../components/FormActionBar";
 import Tabs from "../../../components/Tabs";
 
@@ -16,6 +17,12 @@ export default function PerformanceManagementForm({ onSaved, onPrev, onNext, pre
     const [loading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [confirmState, setConfirmState] = useState({
+        open: false,
+        title: "",
+        message: "",
+        onConfirm: null,
+    });
     const [expandedObjectives, setExpandedObjectives] = useState([]);
     const [expandedCompetencies, setExpandedCompetencies] = useState([]);
     const [activeTab, setActiveTab] = useState("objectives");
@@ -82,9 +89,18 @@ export default function PerformanceManagementForm({ onSaved, onPrev, onNext, pre
         setExpandedObjectives([...expandedObjectives, objectives.length]);
     };
 
-    const removeObjective = (index) => {
+    const removeObjectiveDirect = (index) => {
         setObjectives(objectives.filter((_, i) => i !== index));
         setExpandedObjectives(expandedObjectives.filter((i) => i !== index));
+    };
+
+    const confirmRemoveObjective = (index) => {
+        setConfirmState({
+            open: true,
+            title: "Remove Objective",
+            message: "This will remove the selected objective and its data. Continue?",
+            onConfirm: () => removeObjectiveDirect(index),
+        });
     };
 
     const updateObjective = (index, field, value) => {
@@ -135,9 +151,18 @@ export default function PerformanceManagementForm({ onSaved, onPrev, onNext, pre
         setExpandedCompetencies((prev) => [...prev, competencies.length]);
     };
 
-    const removeCompetency = (index) => {
+    const removeCompetencyDirect = (index) => {
         setCompetencies((prev) => prev.filter((_, i) => i !== index));
         setExpandedCompetencies((prev) => prev.filter((i) => i !== index));
+    };
+
+    const confirmRemoveCompetency = (index) => {
+        setConfirmState({
+            open: true,
+            title: "Remove Competency",
+            message: "This will remove the selected competency. Continue?",
+            onConfirm: () => removeCompetencyDirect(index),
+        });
     };
 
     const updateCompetency = (index, field, value) => {
@@ -425,7 +450,7 @@ export default function PerformanceManagementForm({ onSaved, onPrev, onNext, pre
                                         <button
                                             type="button"
                                             onClick={() =>
-                                                removeObjective(index)
+                                                confirmRemoveObjective(index)
                                             }
                                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md"
                                         >
@@ -583,7 +608,7 @@ export default function PerformanceManagementForm({ onSaved, onPrev, onNext, pre
                                         <div className="flex justify-end pt-2">
                                             <button
                                                 type="button"
-                                                onClick={() => removeCompetency(index)}
+                                                onClick={() => confirmRemoveCompetency(index)}
                                                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md"
                                             >
                                                 Remove Competency
@@ -654,6 +679,21 @@ export default function PerformanceManagementForm({ onSaved, onPrev, onNext, pre
                     message="Performance objectives have been saved successfully!"
                 />
             )}
+
+            {/* Confirm Delete Dialog */}
+            <ConfirmDialog
+                open={confirmState.open}
+                title={confirmState.title}
+                message={confirmState.message}
+                onCancel={() => setConfirmState((p) => ({ ...p, open: false }))}
+                onConfirm={() => {
+                    try {
+                        confirmState.onConfirm && confirmState.onConfirm();
+                    } finally {
+                        setConfirmState((p) => ({ ...p, open: false }));
+                    }
+                }}
+            />
         </div>
     );
 }

@@ -11,7 +11,7 @@ const Checkbox = ({ value, name, onChange, checked = false, onOthersChange, othe
                         value={value}
                         checked={checked}
                         onChange={onChange}
-                        className="col-start-1 row-start-1 appearance-none rounded-sm border border-black/10 bg-white/5 checked:border-[#ee3124] checked:bg-[#ee3124] indeterminate:border-[#ee3124] indeterminate:bg-[#ee3124] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ee3124] disabled:border-white/5 disabled:bg-white/10 disabled:checked:bg-white/10 forced-colors:appearance-auto"
+                        className="col-start-1 row-start-1 w-5 h-5 appearance-none rounded-sm border-2 border-black/30 bg-white/5 checked:border-[#ee3124] checked:bg-[#ee3124] indeterminate:border-[#ee3124] indeterminate:bg-[#ee3124] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ee3124] disabled:border-white/5 disabled:bg-white/10 disabled:checked:bg-white/10 forced-colors:appearance-auto"
                     />
                     <svg
                         fill="none"
@@ -49,7 +49,7 @@ const Checkbox = ({ value, name, onChange, checked = false, onOthersChange, othe
                             type="text"
                             value={othersValue}
                             onChange={(e) => onOthersChange && onOthersChange(e.target.value)}
-                            placeholder="Please specify..."
+                            placeholder="Please specify, separate items by comma."
                             className="w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
                         />
                     </div>

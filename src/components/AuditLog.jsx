@@ -1,15 +1,10 @@
+import { useNavigate } from "react-router";
 import { capitalizeFirstLetter } from "../helper/capitalizedFirstLetter";
 import Title from "./Title";
+import { Button } from "./ui/button";
+import { formatDate } from "@/helper/dateFormat";
 
 // Utility helpers
-function formatDate(value) {
-    if (!value) return "-";
-    try {
-        return new Date(value).toLocaleString();
-    } catch {
-        return String(value);
-    }
-}
 
 function safeParse(value) {
     if (value && typeof value === "object") return value;
@@ -80,6 +75,7 @@ export default function AuditLogs({
     perPage,
     title,
 }) {
+    const navigate = useNavigate();
     // Renderers for old / new columns that only show the changed fields
     function OldColumn({ oldData, newData }) {
         const changed = getChangedFields(oldData, newData);
@@ -141,6 +137,15 @@ export default function AuditLogs({
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="w-full sm:w-auto">
                         <Title title={title} />
+                    </div>
+                    <div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(-1)}
+                        >
+                            Back
+                        </Button>
                     </div>
                     {/* <div className="flex items-center gap-2">
                         <select

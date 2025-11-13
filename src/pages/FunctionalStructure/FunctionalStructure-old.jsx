@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from "react";
 import Title from "../../components/Title";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getFunctionalStructure } from "../../utils/functional_structure";
+import { getFunctionalStructure } from "../../database/functional_structure";
 import { Loading, Error } from "../../components/LoadingError";
 import FunctionalDropdownItem from "../../components/FunctionalDropdownItem";
 import FunctionalStructureSearch from "../../components/FunctionalStructureSearch";

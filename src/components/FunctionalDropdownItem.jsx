@@ -14,7 +14,7 @@ import {
     deleteFunction,
     reorderSubfunctions,
     reorderDescriptions,
-} from "../utils/functional_structure";
+} from "../database/functional_structure";
 import useUser from "../contexts/useUser";
 
 function useDraggableList(initial = []) {

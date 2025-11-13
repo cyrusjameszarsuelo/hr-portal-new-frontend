@@ -7,7 +7,7 @@ import {
     getHeadCount,
     getHeadCountPerDept,
     getOrgStructure,
-} from "../../utils/org_structure";
+} from "../../database/org_structure";
 import { Error, Loading } from "../../components/LoadingError";
 import CustomModal from "../../components/CustomModal";
 import ModalTabs from "../../components/ModalTabs";

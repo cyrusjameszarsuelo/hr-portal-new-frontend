@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Prefer VITE_API_URL from .env (Vite exposes env vars via import.meta.env).
 // Fall back to the hardcoded local IP if not provided.
-const DEFAULT_API_URL = 'http://192.168.100.125:8000';
+const DEFAULT_API_URL = 'http://localhost/api';
 const rawBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) || DEFAULT_API_URL;
 
 // Normalize and ensure the base ends with '/api'

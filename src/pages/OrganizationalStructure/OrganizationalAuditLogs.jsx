@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getOrgStructureAuditLogs } from "../../utils/audit_logs";
+import { getOrgStructureAuditLogs } from "../../database/audit_logs";
 import AuditLogs from "../../components/AuditLog";
 
 export default function OrganizationalAuditLogs() {

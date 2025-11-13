@@ -13,9 +13,9 @@ import DynamicTable from "./DynamicTable";
 import {
     deleteFunction,
     reorderSubfunctions,
-} from "../utils/functional_structure";
+} from "../database/functional_structure";
 import useUser from "../contexts/useUser";
-import { getAuditLogs } from "../utils/audit_logs";
+import { getAuditLogs } from "../database/audit_logs";
 
 function useDraggableList(initial = []) {
     const [items, setItems] = useState(() => (initial ? [...initial] : []));

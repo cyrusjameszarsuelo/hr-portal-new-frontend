@@ -11,6 +11,16 @@ export async function getFunctionalStructure() {
     }
 }
 
+export async function getAllFunctionalStructure() {
+    try {
+        const response = await api.get("/function-positions");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching functional structure:", error);
+        throw error;
+    }
+}
+
 export async function getFunctionById(id) {
     if (id === undefined || id === null) {
         return null;
@@ -38,9 +48,9 @@ export async function getSubFunctionById(id) {
     }
 }
 
-export async function getAllSubFunctions(department = null) {
+export async function getAllSubFunctions(department = null, position_title = null) {
     try {
-        const response = await api.get(`/subfunction-dept/${department}`);
+        const response = await api.get(`/subfunction-dept/${department}/${position_title}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching all Subfunctions:`, error);

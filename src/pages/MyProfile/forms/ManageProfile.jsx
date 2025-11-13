@@ -3,7 +3,7 @@ import Title from "../../../components/Title";
 import { ArrowLeftCircleIcon } from "@heroicons/react/24/outline";
 import { useNavigate, useParams } from "react-router";
 const JobProfileForm = lazy(() => import("./JobProfileForm"));
-const AboutUsForm = lazy(() => import("./AboutUsForm"));
+const AboutUsForm = lazy(() => import("./AboutForm"));
 const PerformanceManagementForm = lazy(() => import("./PerformanceManagementForm"));
 
 export default function ManageProfile() {
@@ -68,7 +68,7 @@ export default function ManageProfile() {
                                     >
                                         {idx + 1}
                                     </span>
-                                    <span className="hidden sm:inline text-sm font-medium">
+                                    <span className="text-xs sm:text-sm font-medium truncate max-w-[60px] sm:max-w-none">
                                         {s.label}
                                     </span>
                                 </button>

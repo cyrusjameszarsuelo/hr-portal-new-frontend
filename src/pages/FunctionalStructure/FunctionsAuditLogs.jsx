@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getFunctionAuditLogs } from "../../utils/audit_logs";
+import { getFunctionAuditLogs } from "../../database/audit_logs";
 import AuditLogs from "../../components/AuditLog";
 
 export default function FunctionsAuditLogs() {

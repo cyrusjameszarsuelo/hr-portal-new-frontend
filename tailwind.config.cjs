@@ -10,7 +10,8 @@ module.exports = {
   },
   variants: {
     extend: {
-      height: ['portrait', 'landscape'], // ✅ belongs here
+      height: ['portrait', 'landscape'],
+      display: ['portrait', 'landscape'],
     },
   },
   plugins: [
