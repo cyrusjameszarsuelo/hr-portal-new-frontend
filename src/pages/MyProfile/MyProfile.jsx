@@ -5,12 +5,16 @@ import { getUserProfile } from "@/database/org_structure";
 
 export default function MyProfile() {
     const { user } = useUser();
+    // console.log(user);
     const [orgStructureId, setOrgStructureId] = useState(null);
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 if (user) {
-                    const result = await getUserProfile('bjhu@megawide.com.ph');
+                    let result = await getUserProfile(user.email);
+                    if (result && result.id) {
+                        result = await getUserProfile("bjhu@megawide.com.ph");
+                    }
                     setOrgStructureId(result.id);
                 }
             } catch (error) {
@@ -21,12 +25,9 @@ export default function MyProfile() {
         fetchProfile();
     }, [user]);
 
-
     return (
         <div className="mx-auto lg:p-4 pt-4 bg-gray-50 border border-gray-200 rounded-lg shadow">
-            <ProfileRoot
-                orgStructureId={orgStructureId}
-            />
+            <ProfileRoot orgStructureId={orgStructureId} />
         </div>
     );
 }
