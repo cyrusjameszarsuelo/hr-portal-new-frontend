@@ -12,7 +12,7 @@ export default function MyProfile() {
             try {
                 if (user) {
                     let result = await getUserProfile(user.email);
-                    if (result && result.id) {
+                    if (result.length === undefined || result.length === 0) {
                         result = await getUserProfile("bjhu@megawide.com.ph");
                     }
                     setOrgStructureId(result.id);
