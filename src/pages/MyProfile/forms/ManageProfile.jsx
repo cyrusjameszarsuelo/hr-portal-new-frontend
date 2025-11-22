@@ -11,10 +11,11 @@ export default function ManageProfile() {
     const { profileId } = useParams();
     const stepDefs = useMemo(
         () => [
-            { id: "about", label: "About" },
-            { id: "job", label: "Job Profile" },
-            { id: "dev", label: "Development Plan" },
-            { id: "perf", label: "Performance Management" },
+            { id: "about", label: "About", mobileLabel: "About" },
+            { id: "job", label: "Job Profile", mobileLabel: "JP" },
+            { id: "perf", label: "Performance Management", mobileLabel: "PMS" },
+            { id: "dev", label: "Development Plan", mobileLabel: "IDP" },
+            { id: "mcat", label: "MCAT", mobileLabel: "MCAT" },
         ],
         [],
     );
@@ -68,8 +69,9 @@ export default function ManageProfile() {
                                     >
                                         {idx + 1}
                                     </span>
-                                    <span className="text-xs sm:text-sm font-medium truncate max-w-[60px] sm:max-w-none">
-                                        {s.label}
+                                    <span className="text-xs sm:text-sm font-medium">
+                                        <span className="hidden sm:inline">{s.label}</span>
+                                        <span className="inline sm:hidden">{s.mobileLabel ?? s.label}</span>
                                     </span>
                                 </button>
                             </li>
@@ -172,6 +174,11 @@ export default function ManageProfile() {
                         prevDisabled={false}
                         nextDisabled={isLast}
                     />
+                )}
+                {currentStepId === "mcat" && (
+                    <div className="py-6">
+                        <p className="text-sm text-gray-600">MCAT content goes here.</p>
+                    </div>
                 )}
                 {/* Navigation buttons are handled inside each form via FormActionBar */}
                 </Suspense>

@@ -19,12 +19,16 @@ const OrgChartComponent = ({ orgData, refetch }) => {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [confirmNodeId, setConfirmNodeId] = useState(null);
 
-    const processedOrgData = useMemo(() => orgData.map((node) => ({
-        ...node,
-        image: node.image ? BASE_URL + node.image : undefined,
-        tags: ["redNode"],
-        Department: node.department,
-    })), [orgData, BASE_URL]);
+    const processedOrgData = useMemo(
+        () =>
+            orgData.map((node) => ({
+                ...node,
+                image: node.image ? BASE_URL + node.image : undefined,
+                tags: ["redNode"],
+                Department: node.department,
+            })),
+        [orgData, BASE_URL],
+    );
 
     OrgChart.SEARCH_PLACEHOLDER = "Search for employee...";
     OrgChart.EDITFORM_CLOSE_BTN =
@@ -44,6 +48,13 @@ const OrgChartComponent = ({ orgData, refetch }) => {
     OrgChart.templates.redTemplate = Object.assign({}, OrgChart.templates.ana);
     OrgChart.templates.redTemplate.node =
         '<rect x="0" y="0" height="120" rx="10" ry="10" width="250" fill="#231F20" stroke-width="1" stroke="#ee3124"></rect>';
+
+    OrgChart.templates.redTemplate.img_0 =
+        '<clipPath id="redImgClip-{id}">' +
+        '<rect x="5" y="5" width="60" height="60" rx="30" ry="30"></rect>' +
+        "</clipPath>" +
+        '<image preserveAspectRatio="xMidYMid slice" href="{val}" ' +
+        'x="5" y="5" width="60" height="60" clip-path="url(#redImgClip-{id})"></image>';
 
     OrgChart.templates.redTemplate.field_0 =
         '<text data-width="230" data-text-overflow="multiline" ' +

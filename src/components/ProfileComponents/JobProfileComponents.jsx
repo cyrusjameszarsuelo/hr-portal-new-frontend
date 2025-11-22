@@ -5,10 +5,10 @@ import JobDescriptionItem from "./JobDescriptionItem";
 /**
  * Header component for job profile with title and meta info
  */
-export function JobProfileHeader({ title, department, level, reportsTo }) {
+export function JobProfileHeader({ title, department, level }) {
     return (
-        <div className="relative bg-linear-to-r from-[#ee3124] to-red-500 text-white rounded-xl p-6 mb-8 shadow-md animate-fade-in">
-            <h1 className="text-4xl font-bold mb-4 tracking-tight">{title}</h1>
+        <div className="relative bg-linear-to-r from-[#ee3124] to-red-500 text-white rounded-xl p-3 mb-6 shadow-md animate-fade-in">
+            <h1 className="text-2xl font-bold mb-4 tracking-tight">{title}</h1>
             <div className="flex flex-wrap gap-2 text-sm">
                 <span className="bg-black/80 text-white px-3 py-1.5 rounded-md font-medium">
                     Department: {department}
@@ -16,9 +16,9 @@ export function JobProfileHeader({ title, department, level, reportsTo }) {
                 <span className="bg-black/80 text-white px-3 py-1.5 rounded-md font-medium">
                     Position Level: {level}
                 </span>
-                <span className="bg-black/80 text-white px-3 py-1.5 rounded-md font-medium">
+                {/* <span className="bg-black/80 text-white px-3 py-1.5 rounded-md font-medium">
                     Reports to: {reportsTo}
-                </span>
+                </span> */}
             </div>
         </div>
     );

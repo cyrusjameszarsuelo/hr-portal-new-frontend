@@ -21,14 +21,15 @@ export default function Tabs({ tabs = [], tab = null, active, onChange, children
                                 aria-selected={isActive}
                                 aria-controls={`tab-panel-${t.id}`}
                                 id={`tab-${t.id}`}
-                                className={`snap-start inline-flex items-center justify-center min-w-[92px] sm:min-w-0 text-left whitespace-nowrap py-2 sm:py-3 px-3 sm:px-4 font-medium text-sm rounded-t-lg focus:outline-none overflow-hidden ${
+                                className={`snap-start flex-1 sm:flex-none inline-flex items-center justify-center min-w-0 text-left whitespace-nowrap py-1 sm:py-3 px-2 sm:px-4 font-medium text-sm rounded-t-lg focus:outline-none overflow-hidden ${
                                     isActive
                                         ? "text-red-700 bg-white border-t border-l border-r border-gray-200"
                                         : "text-gray-600 hover:text-gray-800 bg-gray-50"
                                 }`}
                             >
-                                <span className="truncate block max-w-[88px] sm:max-w-none" title={t.label}>
-                                    {t.label}
+                                <span className="truncate block max-w-none sm:max-w-none" title={t.label}>
+                                    <span className="hidden sm:inline">{t.label}</span>
+                                    <span className="inline sm:hidden">{t.mobileLabel ?? t.label}</span>
                                 </span>
                             </button>
                         );

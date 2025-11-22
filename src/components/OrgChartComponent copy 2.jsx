@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import OrgChart from "../assets/js/orgchart.js"; // Assuming this path is correct
 import {
     addOrgNode,
@@ -13,12 +13,12 @@ const OrgChartComponent = ({ orgData }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const BASE_URL = `${import.meta.env.VITE_API_URL}/storage/`;
 
-    const processedOrgData = orgData.map((node) => ({
+    const processedOrgData = useMemo(() => orgData.map((node) => ({
         ...node,
         image: node.image ? BASE_URL + node.image : undefined,
         tags: ["redNode"],
         Department: node.department,
-    }));
+    })), [orgData, BASE_URL]);
 
     OrgChart.SEARCH_PLACEHOLDER = "Search for employee...";
 
@@ -223,7 +223,7 @@ const OrgChartComponent = ({ orgData }) => {
                 chartInstance.current = null;
             }
         };
-    }, [orgData]);
+    }, [processedOrgData]);
 
     const handleToggleExpandCollapse = () => {
         if (!chartInstance.current) return;

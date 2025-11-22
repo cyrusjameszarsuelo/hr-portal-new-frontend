@@ -89,24 +89,34 @@ export default function ProfileRoot({ orgStructureId }) {
             {
                 id: "about",
                 label: "About",
+                mobileLabel: "About",
                 content: <AboutProfile about={selectedAbout || aboutProfile} />,
             },
             {
                 id: "job",
                 label: "Job Profile",
+                mobileLabel: "JP",
                 content: (
                     <JobProfile jobProfile={selectedProfile || userProfile} />
                 ),
             },
             {
+                id: "perf",
+                label: "Performance Management",
+                mobileLabel: "PMS",
+                content: <PerformanceManagement />,
+            },
+            {
                 id: "dev",
                 label: "Development Plan",
+                mobileLabel: "IDP",
                 content: <p>Content for Development Plan tab goes here.</p>,
             },
             {
-                id: "perf",
-                label: "Performance Management",
-                content: <PerformanceManagement />,
+                id: "mcat",
+                label: "MCAT",
+                mobileLabel: "MCAT",
+                content: <p>MCAT content goes here.</p>,
             },
         ];
     }, [userProfile, selectedProfile, aboutProfile, selectedAbout]);

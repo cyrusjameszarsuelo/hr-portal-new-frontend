@@ -13,6 +13,7 @@ import {
 import InfoCard from "@/components/ProfileComponents/InfoCard";
 import { useState } from "react";
 import BulletList from "@/components/BulletList";
+import { ChevronDoubleDownIcon, ChevronDoubleUpIcon } from "@heroicons/react/24/outline";
 
 export default function AboutProfile({ about }) {
     const data = about?.about || about || {};
@@ -59,13 +60,10 @@ export default function AboutProfile({ about }) {
     const megawide = data?.megawide_work_experience || {};
 
     const functions = useMemo(() => {
-        const raw =
-            megawide?.functions || megawide?.subfunction_positions || [];
+        const raw = megawide?.functions || megawide?.subfunction_positions || [];
         if (!Array.isArray(raw)) return [];
         return raw
-            .map((f) =>
-                typeof f === "string" ? f : f?.subfunction_title || f?.name,
-            )
+            .map((f) => (typeof f === "string" ? f : f?.subfunction_title || f?.name))
             .filter(Boolean);
     }, [megawide?.functions, megawide?.subfunction_positions]);
 
@@ -110,13 +108,20 @@ export default function AboutProfile({ about }) {
             <div className="border rounded-lg shadow-sm bg-white">
                 <button
                     type="button"
-                    className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-t-lg focus:outline-none"
+                    className="w-full flex justify-between items-center px-4 py-3 bg-white rounded-t-lg focus:outline-none"
                     onClick={() => toggleCard("personal")}
                 >
-                    <span className="font-semibold text-base">
-                        Personal Information
+                    <div className="flex items-center">
+                        <span className="w-1 h-6 bg-[#ee3124] rounded mr-3" />
+                        <span className="text-[#ee3124] font-semibold text-base">Personal Information</span>
+                    </div>
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 shadow-sm">
+                        {openCards.personal ? (
+                            <ChevronDoubleUpIcon className="w-4 h-4" />
+                        ) : (
+                            <ChevronDoubleDownIcon className="w-4 h-4" />
+                        )}
                     </span>
-                    <span>{openCards.personal ? "-" : "+"}</span>
                 </button>
                 {openCards.personal && (
                     <div className="px-4 py-4">
@@ -144,13 +149,20 @@ export default function AboutProfile({ about }) {
                 <div className="border rounded-lg shadow-sm bg-white">
                     <button
                         type="button"
-                        className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-t-lg focus:outline-none"
+                        className="w-full flex justify-between items-center px-4 py-3 bg-white rounded-t-lg focus:outline-none"
                         onClick={() => toggleCard("interests")}
                     >
-                        <span className="font-semibold text-base">
-                            Interests
+                        <div className="flex items-center">
+                            <span className="w-1 h-6 bg-[#ee3124] rounded mr-3" />
+                            <span className="text-[#ee3124] font-semibold text-base">Interests</span>
+                        </div>
+                        <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 shadow-sm">
+                            {openCards.interests ? (
+                                <ChevronDoubleUpIcon className="w-4 h-4" />
+                            ) : (
+                                <ChevronDoubleDownIcon className="w-4 h-4" />
+                            )}
                         </span>
-                        <span>{openCards.interests ? "-" : "+"}</span>
                     </button>
                     {openCards.interests && (
                         <div className="px-4 py-4">
@@ -161,11 +173,20 @@ export default function AboutProfile({ about }) {
                 <div className="border rounded-lg shadow-sm bg-white">
                     <button
                         type="button"
-                        className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-t-lg focus:outline-none"
+                        className="w-full flex justify-between items-center px-4 py-3 bg-white rounded-t-lg focus:outline-none"
                         onClick={() => toggleCard("skills")}
                     >
-                        <span className="font-semibold text-base">Skills</span>
-                        <span>{openCards.skills ? "-" : "+"}</span>
+                        <div className="flex items-center">
+                            <span className="w-1 h-6 bg-[#ee3124] rounded mr-3" />
+                            <span className="text-[#ee3124] font-semibold text-base">Skills</span>
+                        </div>
+                        <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 shadow-sm">
+                            {openCards.skills ? (
+                                <ChevronDoubleUpIcon className="w-4 h-4" />
+                            ) : (
+                                <ChevronDoubleDownIcon className="w-4 h-4" />
+                            )}
+                        </span>
                     </button>
                     {openCards.skills && (
                         <div className="px-4 py-4">
@@ -179,13 +200,20 @@ export default function AboutProfile({ about }) {
             <div className="border rounded-lg shadow-sm bg-white">
                 <button
                     type="button"
-                    className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-t-lg focus:outline-none"
+                    className="w-full flex justify-between items-center px-4 py-3 bg-white rounded-t-lg focus:outline-none"
                     onClick={() => toggleCard("education")}
                 >
-                    <span className="font-semibold text-base">
-                        Educational Background
+                    <div className="flex items-center">
+                        <span className="w-1 h-6 bg-[#ee3124] rounded mr-3" />
+                        <span className="text-[#ee3124] font-semibold text-base">Educational Background</span>
+                    </div>
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 shadow-sm">
+                        {openCards.education ? (
+                            <ChevronDoubleUpIcon className="w-4 h-4" />
+                        ) : (
+                            <ChevronDoubleDownIcon className="w-4 h-4" />
+                        )}
                     </span>
-                    <span>{openCards.education ? "-" : "+"}</span>
                 </button>
                 {openCards.education && (
                     <div className="px-4 py-4">
@@ -206,13 +234,20 @@ export default function AboutProfile({ about }) {
             <div className="border rounded-lg shadow-sm bg-white">
                 <button
                     type="button"
-                    className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-t-lg focus:outline-none"
+                    className="w-full flex justify-between items-center px-4 py-3 bg-white rounded-t-lg focus:outline-none"
                     onClick={() => toggleCard("licenses")}
                 >
-                    <span className="font-semibold text-base">
-                        Licenses & Certifications
+                    <div className="flex items-center">
+                        <span className="w-1 h-6 bg-[#ee3124] rounded mr-3" />
+                        <span className="text-[#ee3124] font-semibold text-base">Licenses & Certifications</span>
+                    </div>
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 shadow-sm">
+                        {openCards.licenses ? (
+                            <ChevronDoubleUpIcon className="w-4 h-4" />
+                        ) : (
+                            <ChevronDoubleDownIcon className="w-4 h-4" />
+                        )}
                     </span>
-                    <span>{openCards.licenses ? "-" : "+"}</span>
                 </button>
                 {openCards.licenses && (
                     <div className="px-4 py-4">
@@ -233,13 +268,20 @@ export default function AboutProfile({ about }) {
             <div className="border rounded-lg shadow-sm bg-white">
                 <button
                     type="button"
-                    className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-t-lg focus:outline-none"
+                    className="w-full flex justify-between items-center px-4 py-3 bg-white rounded-t-lg focus:outline-none"
                     onClick={() => toggleCard("megawide")}
                 >
-                    <span className="font-semibold text-base">
-                        Megawide Work Experience
+                    <div className="flex items-center">
+                        <span className="w-1 h-6 bg-[#ee3124] rounded mr-3" />
+                        <span className="text-[#ee3124] font-semibold text-base">Megawide Work Experience</span>
+                    </div>
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 shadow-sm">
+                        {openCards.megawide ? (
+                            <ChevronDoubleUpIcon className="w-4 h-4" />
+                        ) : (
+                            <ChevronDoubleDownIcon className="w-4 h-4" />
+                        )}
                     </span>
-                    <span>{openCards.megawide ? "-" : "+"}</span>
                 </button>
                 {openCards.megawide && (
                     <div className="px-4 py-4">
@@ -270,13 +312,20 @@ export default function AboutProfile({ about }) {
             <div className="border rounded-lg shadow-sm bg-white">
                 <button
                     type="button"
-                    className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-t-lg focus:outline-none"
+                    className="w-full flex justify-between items-center px-4 py-3 bg-white rounded-t-lg focus:outline-none"
                     onClick={() => toggleCard("previousWork")}
                 >
-                    <span className="font-semibold text-base">
-                        Previous Work Experience
+                    <div className="flex items-center">
+                        <span className="w-1 h-6 bg-[#ee3124] rounded mr-3" />
+                        <span className="text-[#ee3124] font-semibold text-base">Previous Work Experience</span>
+                    </div>
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 shadow-sm">
+                        {openCards.previousWork ? (
+                            <ChevronDoubleUpIcon className="w-4 h-4" />
+                        ) : (
+                            <ChevronDoubleDownIcon className="w-4 h-4" />
+                        )}
                     </span>
-                    <span>{openCards.previousWork ? "-" : "+"}</span>
                 </button>
                 {openCards.previousWork && (
                     <div className="px-4 py-4">
@@ -299,13 +348,20 @@ export default function AboutProfile({ about }) {
                 <div className="border rounded-lg shadow-sm bg-white">
                     <button
                         type="button"
-                        className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-t-lg focus:outline-none"
+                        className="w-full flex justify-between items-center px-4 py-3 bg-white rounded-t-lg focus:outline-none"
                         onClick={() => toggleCard("technical")}
                     >
-                        <span className="font-semibold text-base">
-                            Technical Proficiency
+                        <div className="flex items-center">
+                            <span className="w-1 h-6 bg-[#ee3124] rounded mr-3" />
+                            <span className="text-[#ee3124] font-semibold text-base">Technical Proficiency</span>
+                        </div>
+                        <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 shadow-sm">
+                            {openCards.technical ? (
+                                <ChevronDoubleUpIcon className="w-4 h-4" />
+                            ) : (
+                                <ChevronDoubleDownIcon className="w-4 h-4" />
+                            )}
                         </span>
-                        <span>{openCards.technical ? "-" : "+"}</span>
                     </button>
                     {openCards.technical && (
                         <div className="px-4 py-4">
@@ -329,13 +385,20 @@ export default function AboutProfile({ about }) {
                 <div className="border rounded-lg shadow-sm bg-white">
                     <button
                         type="button"
-                        className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-t-lg focus:outline-none"
+                        className="w-full flex justify-between items-center px-4 py-3 bg-white rounded-t-lg focus:outline-none"
                         onClick={() => toggleCard("language")}
                     >
-                        <span className="font-semibold text-base">
-                            Language Proficiency
+                        <div className="flex items-center">
+                            <span className="w-1 h-6 bg-[#ee3124] rounded mr-3" />
+                            <span className="text-[#ee3124] font-semibold text-base">Language Proficiency</span>
+                        </div>
+                        <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 shadow-sm">
+                            {openCards.language ? (
+                                <ChevronDoubleUpIcon className="w-4 h-4" />
+                            ) : (
+                                <ChevronDoubleDownIcon className="w-4 h-4" />
+                            )}
                         </span>
-                        <span>{openCards.language ? "-" : "+"}</span>
                     </button>
                     {openCards.language && (
                         <div className="px-4 py-4">

@@ -50,13 +50,25 @@ export function jobProfileReducer(state, action) {
                 }
             }
             
+            // Helper to map duties/profile_kra into UI shape
+            const mapDuties = (kraObj) => {
+                if (!kraObj) return [];
+                if (Array.isArray(kraObj.profile_kra) && kraObj.profile_kra.length) {
+                    return kraObj.profile_kra.map(p => ({ id: p.id, kra_description: p.kra_description || p.duties_and_responsibilities || '', description: p.description || p.deliverables || '' }));
+                }
+                if (Array.isArray(kraObj.job_profile_duties) && kraObj.job_profile_duties.length) {
+                    return kraObj.job_profile_duties.map(p => ({ id: p.id, kra_description: p.duties_and_responsibilities || '', description: p.deliverables || '' }));
+                }
+                return [];
+            };
+
             // Create new KRA with auto-populated values if available
             const newKra = selectedKra ? {
                 subfunction: selectedSubfunction,
                 kraId: selectedKra.id,
                 kra: selectedKra.kra,
                 description: selectedKra.kra_description,
-                profile_kra: [],
+                profile_kra: mapDuties(selectedKra),
             } : {
                 subfunction: null,
                 kraId: null,
@@ -93,15 +105,27 @@ export function jobProfileReducer(state, action) {
                         const firstAvailableKra = availableKras.find(
                             kraOption => !usedKraIds.includes(kraOption.id)
                         );
-                        
-                        // Auto-populate with the first available KRA
+
+                        // Auto-populate with the first available KRA (include details)
                         if (firstAvailableKra) {
+                            const mapDutiesLocal = (kraObj) => {
+                                if (!kraObj) return [];
+                                if (Array.isArray(kraObj.profile_kra) && kraObj.profile_kra.length) {
+                                    return kraObj.profile_kra.map(p => ({ id: p.id, kra_description: p.kra_description || p.duties_and_responsibilities || '', description: p.description || p.deliverables || '' }));
+                                }
+                                if (Array.isArray(kraObj.job_profile_duties) && kraObj.job_profile_duties.length) {
+                                    return kraObj.job_profile_duties.map(p => ({ id: p.id, kra_description: p.duties_and_responsibilities || '', description: p.deliverables || '' }));
+                                }
+                                return [];
+                            };
+
                             return {
                                 ...kra,
                                 subfunction: value,
                                 kraId: firstAvailableKra.id,
                                 kra: firstAvailableKra.kra,
                                 description: firstAvailableKra.kra_description,
+                                profile_kra: mapDutiesLocal(firstAvailableKra),
                             };
                         }
                         
@@ -169,6 +193,17 @@ export function jobProfileReducer(state, action) {
         }
         case "SET_KRA_FROM_SELECTION": {
             const { index, selectedKra } = action;
+            const mapDutiesLocal = (kraObj) => {
+                if (!kraObj) return [];
+                if (Array.isArray(kraObj.profile_kra) && kraObj.profile_kra.length) {
+                    return kraObj.profile_kra.map(p => ({ id: p.id, kra_description: p.kra_description || p.duties_and_responsibilities || '', description: p.description || p.deliverables || '' }));
+                }
+                if (Array.isArray(kraObj.job_profile_duties) && kraObj.job_profile_duties.length) {
+                    return kraObj.job_profile_duties.map(p => ({ id: p.id, kra_description: p.duties_and_responsibilities || '', description: p.deliverables || '' }));
+                }
+                return [];
+            };
+
             return {
                 ...state,
                 kras: state.kras.map((k, i) =>
@@ -178,9 +213,17 @@ export function jobProfileReducer(state, action) {
                               kraId: selectedKra?.id || null,
                               kra: selectedKra?.kra || "",
                               description: selectedKra?.kra_description || "",
+                              profile_kra: mapDutiesLocal(selectedKra),
                           }
                         : k,
                 ),
+            };
+        }
+        case "SET_PROFILE_KRA": {
+            const { index, profile_kra } = action;
+            return {
+                ...state,
+                kras: state.kras.map((k, i) => (i === index ? { ...k, profile_kra } : k)),
             };
         }
         case "AUTO_POPULATE_KRAS": {

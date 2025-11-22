@@ -50,7 +50,6 @@ export default function JobSpecifications({
 
     const removeValue = (key, index) => {
         const current = Array.isArray(values[key]) ? values[key] : [];
-        const label = current[index];
         const next = current.filter((_, i) => i !== index);
         onChange(key, next);
     };

@@ -22,8 +22,8 @@ export default function ReportingRelationships({ config, values, onChange }) {
                     .map(toText)
                     .filter(Boolean);
                 setTitles(normalized);
-            } catch (_) {
-                // keep empty suggestions on failure
+            } catch (err) {
+                console.error("Failed to load position titles:", err);
             }
         })();
         return () => {

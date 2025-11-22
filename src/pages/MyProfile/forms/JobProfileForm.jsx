@@ -91,7 +91,7 @@ export default function JobProfileForm({
             },
             {
                 type: "tertiary",
-                label: "Administrative Reporting Relationship  	(Attendance, Administrative Reporting) ",
+                label: "Administrative Reporting Relationship  \t(Attendance, Administrative Reporting) ",
             },
         ],
         [],
@@ -116,28 +116,36 @@ export default function JobProfileForm({
 
                     const ensureArray = (v) =>
                         Array.isArray(v) ? v : v ? [String(v)] : [];
-                    // Map KRAs
-                    const kras = (jobProfile.job_descriptions || []).map(
-                        (jd) => ({
+                    // Map KRAs. Normalize KRA details from either `profile_kra`
+                    // or `job_profile_duties` into the UI shape `{ id, kra_description, description }`.
+                    const kras = (jobProfile.job_descriptions || []).map((jd) => {
+                        const fromProfileKra = Array.isArray(jd.profile_kra)
+                            ? jd.profile_kra.map((p) => ({
+                                  id: p.id,
+                                  kra_description: p.kra_description || p.duties_and_responsibilities || "",
+                                  description: p.description || p.deliverables || "",
+                              }))
+                            : null;
+
+                        const fromDuties = Array.isArray(jd.job_profile_duties)
+                            ? jd.job_profile_duties.map((p) => ({
+                                  id: p.id,
+                                  kra_description: p.duties_and_responsibilities || "",
+                                  description: p.deliverables || "",
+                              }))
+                            : null;
+
+                        const profile_kra = fromProfileKra || fromDuties || [];
+
+                        return {
                             id: jd.id,
-                            subfunction:
-                                jd.subfunction ||
-                                jobProfile.subfunction ||
-                                null,
-                            kraId:
-                                typeof jd.kra === "object"
-                                    ? jd.kra?.id
-                                    : jd.kra,
-                            kra:
-                                typeof jd.kra === "object"
-                                    ? jd.kra?.kra
-                                    : jd.kra_description || "",
+                            subfunction: jd.subfunction || jobProfile.subfunction || null,
+                            kraId: typeof jd.kra === "object" ? jd.kra?.id : jd.kra,
+                            kra: typeof jd.kra === "object" ? jd.kra?.kra : jd.kra_description || "",
                             description: jd.description || "",
-                            profile_kra: Array.isArray(jd.profile_kra)
-                                ? jd.profile_kra
-                                : [],
-                        }),
-                    );
+                            profile_kra,
+                        };
+                    });
 
                     dispatch({
                         type: "INIT",
@@ -255,6 +263,8 @@ export default function JobProfileForm({
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Subfunctions effect: fetching based on department/position
+
                 if (jobForm.department && jobForm.position_title) {
                     const department = jobForm.department;
                     const position_title = jobForm.position_title;
@@ -271,6 +281,44 @@ export default function JobProfileForm({
                     if (jobForm.kras.length === 0 && subfunctionsData.length > 0) {
                         dispatch({ type: "AUTO_POPULATE_KRAS", subfunctions: subfunctionsData });
                     }
+
+                        // Hydrate existing kras' profile_kra from the fetched subfunctions
+                    // This covers edit/load mode where the initial `kras` may reference
+                    // only ids but the detailed duties live under `subfunctionsData`.
+                    if (jobForm.kras && jobForm.kras.length > 0) {
+                        // Build a lookup map of kraId -> kra definition for fast lookup.
+                        const kraMap = {};
+                        for (const sf of subfunctionsData) {
+                            const list = sf.job_profile_kras || [];
+                            for (const k of list) {
+                                if (k && k.id != null) kraMap[String(k.id)] = k;
+                            }
+                        }
+
+                        const mapDuties = (kraObj) => {
+                            if (!kraObj) return [];
+                            if (Array.isArray(kraObj.profile_kra) && kraObj.profile_kra.length) {
+                                return kraObj.profile_kra.map((p) => ({ id: p.id, kra_description: p.kra_description || p.duties_and_responsibilities || "", description: p.description || p.deliverables || "" }));
+                            }
+                            if (Array.isArray(kraObj.job_profile_duties) && kraObj.job_profile_duties.length) {
+                                return kraObj.job_profile_duties.map((p) => ({ id: p.id, kra_description: p.duties_and_responsibilities || "", description: p.deliverables || "" }));
+                            }
+                            return [];
+                        };
+
+                        jobForm.kras.forEach((kraEntry, idx) => {
+                            // only hydrate if profile_kra empty and we have a kraId
+                            if ((!kraEntry.profile_kra || kraEntry.profile_kra.length === 0) && kraEntry.kraId) {
+                                const found = kraMap[String(kraEntry.kraId)] || null;
+                                if (found) {
+                                    const mapped = mapDuties(found);
+                                    if (mapped && mapped.length > 0) {
+                                        dispatch({ type: "SET_PROFILE_KRA", index: idx, profile_kra: mapped });
+                                    }
+                                }
+                            }
+                        });
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching subfunctions:", error);
@@ -278,7 +326,48 @@ export default function JobProfileForm({
         };
 
         fetchData();
-    }, [jobForm.department, jobForm.position_title]);
+    }, [jobForm.department, jobForm.position_title, jobForm.kras]);
+
+    // Ensure hydration runs whenever both `subfunctions` and `jobForm.kras` are available.
+    // This covers either order of arrival (subfunctions fetched before INIT or vice-versa).
+    useEffect(() => {
+        if (!subfunctions || subfunctions.length === 0) return;
+        if (!jobForm.kras || jobForm.kras.length === 0) return;
+
+        // Hydration effect running when both `subfunctions` and `jobForm.kras` are available
+
+        const mapDuties = (kraObj) => {
+            if (!kraObj) return [];
+            if (Array.isArray(kraObj.profile_kra) && kraObj.profile_kra.length) {
+                return kraObj.profile_kra.map((p) => ({ id: p.id, kra_description: p.kra_description || p.duties_and_responsibilities || "", description: p.description || p.deliverables || "" }));
+            }
+            if (Array.isArray(kraObj.job_profile_duties) && kraObj.job_profile_duties.length) {
+                return kraObj.job_profile_duties.map((p) => ({ id: p.id, kra_description: p.duties_and_responsibilities || "", description: p.deliverables || "" }));
+            }
+            return [];
+        };
+
+        // Build a small lookup map of kraId -> kra object from `subfunctions` to avoid nested loops.
+        const kraMap = {};
+        for (const sf of subfunctions) {
+            const list = sf.job_profile_kras || [];
+            for (const k of list) {
+                if (k && k.id != null) kraMap[String(k.id)] = k;
+            }
+        }
+
+        jobForm.kras.forEach((kraEntry, idx) => {
+            if ((!kraEntry.profile_kra || kraEntry.profile_kra.length === 0) && kraEntry.kraId) {
+                const found = kraMap[String(kraEntry.kraId)] || null;
+                if (found) {
+                    const mapped = mapDuties(found);
+                    if (mapped && mapped.length > 0) {
+                        dispatch({ type: "SET_PROFILE_KRA", index: idx, profile_kra: mapped });
+                    }
+                }
+            }
+        });
+    }, [subfunctions, jobForm.kras]);
 
     // Dispatch wrappers
     const updateJobField = (section, field, value) =>
@@ -364,8 +453,9 @@ export default function JobProfileForm({
                       )
                       .filter(Boolean)
                 : [];
-        } catch (_) {
+        } catch (err) {
             existingTitles = [];
+            console.error("Failed to fetch position titles:", err);
         }
 
         // 2. Get all entered titles from both fields

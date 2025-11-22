@@ -9,22 +9,36 @@ export default function KRASection({ kras, subfunctions, dispatch, setOpenConfir
         return kras.map(kra => kra.kraId).filter(id => id !== null);
     }, [kras]);
 
-    // Filter available KRAs for a specific index (exclude already selected ones except current)
-    const getAvailableKras = (currentKra, currentIndex) => {
-        if (!currentKra.subfunction?.job_profile_kras) return [];
-        
-        return currentKra.subfunction.job_profile_kras.filter(kraOption => {
-            // Include if it's the currently selected KRA for this index
-            if (kraOption.id === currentKra.kraId) return true;
-            // Exclude if it's already used by another KRA
-            return !usedKraIds.some((usedId, idx) => usedId === kraOption.id && idx !== currentIndex);
-        });
-    };
+    // NOTE: available KRAs are resolved per-subfunction below (see `resolvedSubfunction`)
 
     return (
         <div className="space-y-4 mb-6">
             {kras.map((kra, kraIndex) => {
-                const availableKras = getAvailableKras(kra, kraIndex);
+                // Resolve a subfunction that contains `job_profile_kras`.
+                // When loading existing data the `kra.subfunction` may be a minimal object
+                // without the `job_profile_kras` array. In that case, look it up from
+                // the `subfunctions` prop (which comes from the server and contains the full data).
+                const resolveSubfunction = (sf) => {
+                    if (!sf) return null;
+                    if (sf.job_profile_kras && Array.isArray(sf.job_profile_kras)) return sf;
+                    // try to find by id first
+                    const byId = subfunctions.find((s) => s.id != null && sf.id != null && Number(s.id) === Number(sf.id));
+                    if (byId) return byId;
+                    // fallback to matching by name
+                    const byName = subfunctions.find((s) => s.name && sf.name && s.name === sf.name);
+                    return byName || sf;
+                };
+
+                const resolvedSubfunction = resolveSubfunction(kra.subfunction);
+                const availableKras = (resolvedSubfunction?.job_profile_kras || []).filter((kraOption) => {
+                    // Include if it's the currently selected KRA for this index
+                    if (kraOption.id === kra.kraId) return true;
+                    // Exclude KRAs already used in other KRA entries
+                    return !usedKraIds.some((usedId) => String(usedId) === String(kraOption.id));
+                });
+                // Ensure profile_kra is always an array so rendering is safe
+                const profileKras = Array.isArray(kra.profile_kra) ? kra.profile_kra : [];
+                // Ensure we always have an array for rendering
                 
                 return (
                 <div key={kraIndex} className="bg-white border border-gray-200 shadow-xl rounded-lg py-4 px-4">
@@ -91,9 +105,10 @@ export default function KRASection({ kras, subfunctions, dispatch, setOpenConfir
                             <Listbox
                                 value={kra.kraId}
                                 onChange={(selectedKraId) => {
-                                    const selectedKra = kra.subfunction?.job_profile_kras?.find((k) => k.id === selectedKraId);
-                                    dispatch({ type: "SET_KRA_FROM_SELECTION", index: kraIndex, selectedKra });
-                                }}
+                                        // Use the resolved subfunction (which contains the full job_profile_kras)
+                                        const selectedKra = resolvedSubfunction?.job_profile_kras?.find((k) => Number(k.id) === Number(selectedKraId));
+                                        dispatch({ type: "SET_KRA_FROM_SELECTION", index: kraIndex, selectedKra });
+                                    }}
                                 disabled={!kra.subfunction}
                             >
                                 <ListboxButton
@@ -157,14 +172,14 @@ export default function KRASection({ kras, subfunctions, dispatch, setOpenConfir
                                 + KRA Details
                             </button>
                         </div>
-                        {kra.profile_kra.length === 0 ? (
+                        {profileKras.length === 0 ? (
                             <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md py-4 px-3 text-center">
                                 <p className="text-gray-400 text-xs">No KRA descriptions added yet.</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {kra.profile_kra.map((profileKra, profileIndex) => (
-                                    <div key={profileIndex} className="bg-gray-50 border border-gray-200 rounded-md p-3">
+                                {profileKras.map((profileKra, profileIndex) => (
+                                    <div key={profileKra.id ?? profileIndex} className="bg-gray-50 border border-gray-200 rounded-md p-3">
                                         <div className="flex items-center justify-between mb-2">
                                             <span className="text-xs font-medium text-gray-600">Detail #{profileIndex + 1}</span>
                                             <button

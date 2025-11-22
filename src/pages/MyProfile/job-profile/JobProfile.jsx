@@ -12,7 +12,7 @@ export default function JobProfile({ jobProfile }) {
     const title = jobProfile?.position_title;
     const level = jobProfile?.level;
     const department = jobProfile?.department;
-    const reportsTo = jobProfile?.job_profile?.reporting_to?.name;
+    const reportsTo = jobProfile?.job_profile?.reporting_to?.name || jobProfile?.reporting;
     const kras = jobProfile?.job_profile?.job_descriptions;
     const performanceStandards =
         jobProfile?.job_profile?.job_performance_standards;

@@ -216,20 +216,16 @@ export function LanguageItem({ lang }) {
     return (
         <div className="border border-gray-200 rounded-md p-3 text-sm">
             <div className="font-semibold mb-2">{safe(lang?.language)}</div>
-            <div className="grid grid-cols-2 gap-3">
-                <div>
-                    <span className="font-semibold">Written:</span>
-                    <div className="mt-1">
-                        {lang?.written ? safe(lang?.w_prof) : "N/A"}
+                <div className="grid grid-cols-2 gap-3">
+                    <div>
+                        <span className="font-semibold">Written:</span>
+                        <div className="mt-1">{lang?.w_prof ? safe(lang?.w_prof) : "N/A"}</div>
+                    </div>
+                    <div>
+                        <span className="font-semibold">Spoken:</span>
+                        <div className="mt-1">{lang?.s_prof ? safe(lang?.s_prof) : "N/A"}</div>
                     </div>
                 </div>
-                <div>
-                    <span className="font-semibold">Spoken:</span>
-                    <div className="mt-1">
-                        {lang?.spoken ? safe(lang?.s_prof) : "N/A"}
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }

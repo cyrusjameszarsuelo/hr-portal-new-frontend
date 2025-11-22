@@ -4,22 +4,32 @@ export function initialAboutForm(profileId) {
   return {
     org_structure_id: profileId || "",
     employee_id: "",
+      firstname: "",
+      middlename: "",
+      lastname: "",
+      suffix: "",
     nickname: "",
     birth_date: "",
+    birthdate: "",
     gender: "",
     civil_status: "",
+      number_of_children: "",
     phone_number: "",
+      personal_email: "",
     blood_type: "",
     emergency_contact_name: "",
     relationship_to_employee: "",
     emergency_contact_number: "",
     citizenship: "",
     birth_place: "",
+      upload_photo: "",
     current_address_street: "",
+      current_address_barangay: "",
     current_address_city: "",
     current_address_region: "",
     current_address_zip_code: "",
     permanent_address_street: "",
+      permanent_address_barangay: "",
     permanent_address_city: "",
     permanent_address_region: "",
     permanent_address_zip_code: "",
@@ -66,3 +76,4 @@ export function aboutFormReducer(state, action) {
       return state;
   }
 }
+
