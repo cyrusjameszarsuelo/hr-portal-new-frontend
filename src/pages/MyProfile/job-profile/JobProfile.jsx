@@ -9,7 +9,7 @@ import {
 } from "@/components/ProfileComponents/JobProfileComponents";
 
 export default function JobProfile({ jobProfile }) {
-    const title = jobProfile?.position_title;
+    const title = jobProfile?.position;
     const level = jobProfile?.level;
     const department = jobProfile?.department;
     const reportsTo = jobProfile?.job_profile?.reporting_to?.name || jobProfile?.reporting;

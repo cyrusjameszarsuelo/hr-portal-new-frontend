@@ -30,6 +30,8 @@ export default function OrganizationalStructure() {
         refetchOnWindowFocus: true,
     });
 
+    console.log(orgStructureData);
+
     // Data fetching
     const {
         data: orgHeadCount,

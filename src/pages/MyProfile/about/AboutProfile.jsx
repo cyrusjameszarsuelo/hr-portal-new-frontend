@@ -19,14 +19,14 @@ export default function AboutProfile({ about }) {
     const data = about?.about || about || {};
 
     const age = useMemo(() => {
-        const b = data?.birth_date;
+        const b = data?.birthdate;
         if (!b) return "N/A";
         const d = new Date(b);
         if (isNaN(d)) return "N/A";
         const diff = Date.now() - d.getTime();
         const ageDt = new Date(diff);
         return Math.abs(ageDt.getUTCFullYear() - 1970);
-    }, [data?.birth_date]);
+    }, [data?.birthdate]);
 
     // Parse arrays
     const interests = useMemo(() => {

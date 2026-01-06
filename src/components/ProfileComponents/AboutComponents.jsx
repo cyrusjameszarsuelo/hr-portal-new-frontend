@@ -10,7 +10,7 @@ export function PersonalInfoSection({ data, age }) {
             <InfoGrid>
                 <InfoField label="Employee ID" value={safe(data?.employee_id)} />
                 <InfoField label="Nickname" value={safe(data?.nickname)} />
-                <InfoField label="Birth Date" value={safe(data?.birth_date)} />
+                <InfoField label="Birth Date" value={safe(data?.birthdate)} />
                 <InfoField label="Age" value={safe(age)} />
                 <InfoField label="Gender" value={safe(data?.gender)} />
                 <InfoField label="Civil Status" value={safe(data?.civil_status)} />
@@ -142,7 +142,7 @@ export function MegawideWorkSection({ megawide, functions }) {
                 />
             </InfoGrid>
 
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            {/* <div className="mt-4 pt-4 border-t border-gray-200">
                 <h3 className="font-semibold mb-2">Subfunction Positions:</h3>
                 {functions.length > 0 ? (
                     <div className="space-y-1">
@@ -156,7 +156,7 @@ export function MegawideWorkSection({ megawide, functions }) {
                 ) : (
                     <div className="text-gray-500">N/A</div>
                 )}
-            </div>
+            </div> */}
         </div>
     );
 }

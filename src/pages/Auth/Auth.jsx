@@ -20,8 +20,8 @@ export default function Auth() {
     return (
         <div className="min-h-screen flex flex-col md:flex-row">
             {/* Left panel */}
-            <div className="w-full md:w-1/2 flex items-center justify-center bg-white p-32">
-                <div className="w-full max-w-max px-6 py-16 md:py-20 text-center">
+            <div className="w-full md:w-1/2 flex items-center justify-center bg-white px-6 py-12 md:p-32">
+                <div className="w-full max-w-md px-4 py-10 md:px-6 md:py-20 text-center">
                     <h1 className="text-2xl md:text-3xl font-bold text-[#333333]">Login to MEGANet</h1>
                     <p className="mt-4 text-sm md:text-base text-gray-500">Use your corporate Microsoft 365 account to access your account and protected resources.</p>
 
@@ -50,10 +50,10 @@ export default function Auth() {
                     </div>
                 </div>
             </div>
-                <div
-                    className="w-full md:w-1/2 flex-1 min-h-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${construction})`, backgroundSize: 'cover' }}
-                />
+            <div
+                className="w-full md:w-1/2 flex-1 min-h-0 bg-cover bg-center h-56 md:h-auto"
+                style={{ backgroundImage: `url(${construction})`, backgroundSize: 'cover' }}
+            />
         </div>
     );
 }

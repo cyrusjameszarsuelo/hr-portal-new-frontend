@@ -13,7 +13,7 @@ function SectionTitle({ children }) {
     );
 }
 
-export default function PerformanceManagementForm({ onSaved, onPrev, onNext, prevDisabled, nextDisabled }) {
+export default function PerformanceManagementForm({ renderSection, onSaved, onPrev, onNext, prevDisabled, nextDisabled }) {
     const [loading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -632,6 +632,24 @@ export default function PerformanceManagementForm({ onSaved, onPrev, onNext, pre
                 </div>
         </div>
     );
+    // If caller asked to render only a specific section, return that content (wrapped similarly)
+    if (renderSection === "objectives") {
+        return (
+            <div className="bg-white border border-gray-200 shadow-sm rounded-lg p-6">
+                <SectionTitle>Individual Objectives & Deliverables</SectionTitle>
+                <div className="mt-4">{objectivesContent}</div>
+            </div>
+        );
+    }
+
+    if (renderSection === "competencies") {
+        return (
+            <div className="bg-white border border-gray-200 shadow-sm rounded-lg p-6">
+                <SectionTitle>Competencies & Values</SectionTitle>
+                <div className="mt-4">{competenciesContent}</div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white border border-gray-200 shadow-xl rounded-lg p-6">

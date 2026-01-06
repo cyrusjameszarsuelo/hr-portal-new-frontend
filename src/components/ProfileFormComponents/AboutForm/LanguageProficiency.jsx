@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 
 export default function LanguageProficiency({
     form,
+    loading,
     addRow,
     updateRow,
     confirmRemoveRow,
@@ -18,7 +19,9 @@ export default function LanguageProficiency({
     ];
 
     useEffect(() => {
-        // If no language proficiencies exist yet, populate defaults.
+        // Only populate defaults after parent finished loading data to avoid the
+        // case where defaults are added then cleared by the parent's REPLACE.
+        if (loading) return;
         if (!form.language_proficiencies || form.language_proficiencies.length === 0) {
             defaultLanguages.forEach((lang) => {
                 addRow("language_proficiencies", {
@@ -28,9 +31,8 @@ export default function LanguageProficiency({
                 });
             });
         }
-        // We intentionally run on mount only; addRow is stable from parent.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [loading]);
     return (
         <div className="bg-white border border-gray-200 shadow-xl rounded-lg p-4">
             <h2 className="text-lg font-semibold text-[#ee3124] flex items-center gap-2">

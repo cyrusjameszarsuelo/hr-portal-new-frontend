@@ -245,13 +245,13 @@ export default function AboutForm({
                 // Map Megawide work experience (single object with previous assignments)
                 const megawide_work_experience = about.megawide_work_experience
                     ? {
-                          job_title:
-                              about.megawide_work_experience.job_title ?? "",
-                          department:
-                              about.megawide_work_experience.department ?? "",
-                          unit: about.megawide_work_experience.unit ?? "",
-                          job_level:
-                              about.megawide_work_experience.job_level ?? "",
+                          position_title_id:
+                              about.megawide_work_experience.position_title_id ?? "",
+                          department_id:
+                              about.megawide_work_experience.department_id ?? "",
+                          sbu_id: about.megawide_work_experience.sbu_id ?? "",
+                          level_id:
+                              about.megawide_work_experience.level_id ?? "",
                           employment_status:
                               about.megawide_work_experience
                                   .employment_status ?? "",
@@ -293,10 +293,10 @@ export default function AboutForm({
                               : [],
                       }
                     : {
-                          job_title: "",
-                          department: "",
-                          unit: "",
-                          job_level: "",
+                          position_title_id: "",
+                          department_id: "",
+                          sbu_id: "",
+                          level_id: "",
                           employment_status: "",
                           current_role_start_date: "",
                           current_role_end_date: "",
@@ -320,28 +320,47 @@ export default function AboutForm({
                     : [];
 
                 // Map technical proficiencies
-                const technical_proficiencies = Array.isArray(
-                    about.technical_proficiencies,
-                )
-                    ? about.technical_proficiencies.map((t) => ({
-                          id: t?.id,
-                          skills: t?.skills ?? "",
-                          proficiency: t?.proficiency ?? "",
-                      }))
-                    : [];
+                    let technical_proficiencies = Array.isArray(
+                        about.technical_proficiencies,
+                    )
+                        ? about.technical_proficiencies.map((t) => ({
+                              id: t?.id,
+                              skills: t?.skills ?? "",
+                              proficiency: t?.proficiency ?? "",
+                          }))
+                        : [];
+
+                    // If the server returned an empty list, preserve any defaults present
+                    // in the client `form` (to avoid flicker where defaults are shown then removed).
+                    if (
+                        (!technical_proficiencies || technical_proficiencies.length === 0) &&
+                        Array.isArray(form?.technical_proficiencies) &&
+                        form.technical_proficiencies.length > 0
+                    ) {
+                        technical_proficiencies = form.technical_proficiencies;
+                    }
 
                 // Map language proficiencies (DB no longer stores boolean flags for written/spoken)
-                const language_proficiencies = Array.isArray(
-                    about.language_proficiencies,
-                )
-                    ? about.language_proficiencies.map((l) => ({
-                          id: l?.id,
-                          language: l?.language ?? "",
-                          // store proficiency strings (or null/empty) directly
-                          w_prof: l?.w_prof ?? null,
-                          s_prof: l?.s_prof ?? null,
-                      }))
-                    : [];
+                    let language_proficiencies = Array.isArray(
+                        about.language_proficiencies,
+                    )
+                        ? about.language_proficiencies.map((l) => ({
+                              id: l?.id,
+                              language: l?.language ?? "",
+                              // store proficiency strings (or null/empty) directly
+                              w_prof: l?.w_prof ?? null,
+                              s_prof: l?.s_prof ?? null,
+                          }))
+                        : [];
+
+                    // Preserve client defaults if server returns an empty list
+                    if (
+                        (!language_proficiencies || language_proficiencies.length === 0) &&
+                        Array.isArray(form?.language_proficiencies) &&
+                        form.language_proficiencies.length > 0
+                    ) {
+                        language_proficiencies = form.language_proficiencies;
+                    }
 
                 dispatch({
                     type: "REPLACE",
@@ -353,8 +372,7 @@ export default function AboutForm({
                         lastname: about?.lastname ?? "",
                         suffix: about?.suffix ?? "",
                         nickname: about?.nickname ?? "",
-                        birth_date: about?.birth_date ?? "",
-                        birthdate: about?.birthdate ?? about?.birth_date ?? "",
+                        birthdate: about?.birthdate ?? "",
                         gender: about?.gender ?? "",
                         civil_status: about?.civil_status ?? "",
                         number_of_children: about?.number_of_children ?? "",
@@ -419,16 +437,9 @@ export default function AboutForm({
     }, [profileId]);
 
     const educationLevelOptions = [
-        "Elementary School",
-        "Junior High School",
-        "Senior High School",
-        "Vocational/Technical",
-        "Associate Degree",
-        "Bachelor's Degree",
-        "Post-Graduate Certificate/Diploma",
-        "Master's Degree",
-        "Doctorate/PhD",
-        "Professional Degree (MD, JD, etc.)",
+        "Highschool",
+        "Undergraduate",
+        "Postgraduate",
     ];
     const proficiencyOptions = [
         "No Experience",
@@ -451,7 +462,7 @@ export default function AboutForm({
             lastname: form.lastname || "",
             suffix: form.suffix || "",
             nickname: form.nickname || "",
-            birthdate: form.birthdate || form.birth_date || "",
+            birthdate: form.birthdate || form.birthdate || "",
             gender: form.gender || "",
             civil_status: form.civil_status || "",
             number_of_children: form.number_of_children || "",
@@ -528,10 +539,10 @@ export default function AboutForm({
 
             // Megawide Work Experience
             megawide_work_experience: {
-                job_title: form.megawide_work_experience.job_title || "",
-                department: form.megawide_work_experience.department || "",
-                unit: form.megawide_work_experience.unit || "",
-                job_level: form.megawide_work_experience.job_level || "",
+                position_title_id: form.megawide_work_experience.position_title_id || "",
+                department_id: form.megawide_work_experience.department_id || "",
+                sbu_id: form.megawide_work_experience.sbu_id || "",
+                level_id: form.megawide_work_experience.level_id || "",
                 employment_status:
                     form.megawide_work_experience.employment_status || "",
                 current_role_start_date:
@@ -628,7 +639,7 @@ export default function AboutForm({
                             type="button"
                             onClick={() => {
                                 setShowSuccessModal(false);
-                                navigate(-1);
+                                // navigate(-1);
                             }}
                             className="px-5 py-2 bg-[#ee3124] text-white rounded-md hover:bg-red-600"
                         >
@@ -698,6 +709,7 @@ export default function AboutForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <TechnicalProficiency
                     form={form}
+                    loading={loading}
                     addRow={addRow}
                     updateRow={updateRow}
                     confirmRemoveRow={confirmRemoveRow}
@@ -706,6 +718,7 @@ export default function AboutForm({
 
                 <LanguageProficiency
                     form={form}
+                    loading={loading}
                     addRow={addRow}
                     updateRow={updateRow}
                     confirmRemoveRow={confirmRemoveRow}

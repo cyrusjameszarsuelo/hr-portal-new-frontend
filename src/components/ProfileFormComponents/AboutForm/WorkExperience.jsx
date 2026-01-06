@@ -11,7 +11,7 @@ export default function WorkExperience({
     confirmRemoveAssignment,
     confirmRemoveRow,
 }) {
-    const [positionTitles, setPositionTitles] = useState([]);
+    const [positionTitles, setPositionTitles] = useState([]); // array of { id, label }
 
     useEffect(() => {
         let mounted = true;
@@ -20,11 +20,19 @@ export default function WorkExperience({
                 const data = await getPositionTitle();
                 if (!mounted) return;
                 const list = Array.isArray(data) ? data : [];
-                const toText = (item) =>
-                    typeof item === "string"
-                        ? item
-                        : item?.position_title || item?.title || item?.name || "";
-                const normalized = Array.from(new Set(list.map(toText).filter(Boolean)));
+                // Normalize into objects with id and label. Support string entries and objects with common keys.
+                const toObj = (item) => {
+                    if (typeof item === "string") return { id: item, label: item };
+                        const id = item?.id ?? item?.position_id ?? item?.value ?? item?.position ?? item?.position_title ?? item?.title ?? item?.name ?? null;
+                        const label = item?.position ?? item?.position_title ?? item?.title ?? item?.name ?? (typeof item === "string" ? item : "");
+                        return { id: id ?? label, label: label };
+                };
+                const normalized = Array.from(
+                    new Map(list.map((i) => {
+                        const o = toObj(i);
+                        return [o.id, o];
+                    })).values(),
+                ).filter((o) => o && o.label);
                 setPositionTitles(normalized);
             } catch (err) {
                 console.error("Failed to load position titles:", err);
@@ -46,6 +54,17 @@ export default function WorkExperience({
             }),
         });
 
+        // Helpers to support backward compatibility: form may contain label text or id.
+        const getIdForValue = (val) => {
+            if (!val) return "";
+            const byId = positionTitles.find((p) => p.id === val);
+            if (byId) return byId.id;
+            const byLabel = positionTitles.find((p) => p.label === val);
+            if (byLabel) return byLabel.id;
+            // fallback to the raw value (server may already be providing id)
+            return val;
+        };
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {/* Left column: Megawide Work Experience */}
@@ -60,13 +79,13 @@ export default function WorkExperience({
                             <div>
                                 <label className="block text-xs font-medium text-gray-700">Job Title</label>
                                 <select
-                                    value={form.megawide_work_experience.job_title}
-                                    onChange={(e) => updateMegawideField("job_title", e.target.value)}
+                                    value={getIdForValue(form.megawide_work_experience.position_title_id)}
+                                    onChange={(e) => updateMegawideField("position_title_id", e.target.value)}
                                     className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1.5 shadow-sm text-xs"
                                 >
                                     <option value="">Select position…</option>
                                     {positionTitles.map((t) => (
-                                        <option key={t} value={t}>{t}</option>
+                                        <option key={t.id} value={t.id}>{t.label}</option>
                                     ))}
                                 </select>
                             </div>
@@ -74,8 +93,8 @@ export default function WorkExperience({
                                 <label className="block text-xs font-medium text-gray-700">Department</label>
                                 <input
                                     type="text"
-                                    value={form.megawide_work_experience.department}
-                                    onChange={(e) => updateMegawideField("department", e.target.value)}
+                                    value={form.megawide_work_experience.department_id}
+                                    onChange={(e) => updateMegawideField("department_id", e.target.value)}
                                     className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1.5 shadow-sm text-xs"
                                     placeholder="e.g., OCEO"
                                 />
@@ -84,18 +103,18 @@ export default function WorkExperience({
                                 <label className="block text-xs font-medium text-gray-700">Unit</label>
                                 <input
                                     type="text"
-                                    value={form.megawide_work_experience.unit}
-                                    onChange={(e) => updateMegawideField("unit", e.target.value)}
+                                    value={form.megawide_work_experience.sbu_id}
+                                    onChange={(e) => updateMegawideField("sbu_id", e.target.value)}
                                     className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1.5 shadow-sm text-xs"
-                                    placeholder="e.g., OCEO"
+                                    placeholder="e.g., CORP"
                                 />
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-gray-700">Job Level</label>
                                 <input
                                     type="text"
-                                    value={form.megawide_work_experience.job_level}
-                                    onChange={(e) => updateMegawideField("job_level", e.target.value)}
+                                    value={form.megawide_work_experience.level_id}
+                                    onChange={(e) => updateMegawideField("level_id", e.target.value)}
                                     className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1.5 shadow-sm text-xs"
                                     placeholder="e.g., Managerial"
                                 />
@@ -143,7 +162,7 @@ export default function WorkExperience({
                         </div>
 
                         {/* Subfunction Positions Multi-Select */}
-                        <div className="mt-4">
+                        {/* <div className="mt-4">
                             <label className="block text-xs font-medium text-gray-700 mb-2">Subfunction Positions</label>
                             <div className="border border-gray-300 rounded-md p-3 bg-gray-50 max-h-48 overflow-y-auto">
                                 {!department ? (
@@ -181,7 +200,7 @@ export default function WorkExperience({
                                 )}
                             </div>
                             <p className="text-xs text-gray-500 mt-1">Selected: {form.megawide_work_experience.functions.length} subfunction position(s)</p>
-                        </div>
+                        </div> */}
 
                         {/* Previous Assignments within Megawide */}
                         <div className="mt-4">
@@ -224,26 +243,33 @@ export default function WorkExperience({
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                                 <div>
                                                     <label className="block text-[11px] font-medium text-gray-700">SBU</label>
-                                                    <input
-                                                        type="text"
-                                                        value={assign.sbu}
-                                                        onChange={(e) =>
-                                                            dispatch({
-                                                                type: "APPLY_UPDATER",
-                                                                updater: (p) => ({
-                                                                    ...p,
-                                                                    megawide_work_experience: {
-                                                                        ...p.megawide_work_experience,
-                                                                        previous_assignments: p.megawide_work_experience.previous_assignments.map((a, i) =>
-                                                                            i === aIdx ? { ...a, sbu: e.target.value } : a,
-                                                                        ),
-                                                                    },
-                                                                }),
-                                                            })
-                                                        }
-                                                        className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1 shadow-sm text-[11px]"
-                                                        placeholder="e.g., CORP"
-                                                    />
+                                                        <select
+                                                            value={assign.sbu}
+                                                            onChange={(e) =>
+                                                                dispatch({
+                                                                    type: "APPLY_UPDATER",
+                                                                    updater: (p) => ({
+                                                                        ...p,
+                                                                        megawide_work_experience: {
+                                                                            ...p.megawide_work_experience,
+                                                                            previous_assignments: p.megawide_work_experience.previous_assignments.map((a, i) =>
+                                                                                i === aIdx ? { ...a, sbu: e.target.value } : a,
+                                                                            ),
+                                                                        },
+                                                                    }),
+                                                                })
+                                                            }
+                                                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1 shadow-sm text-[11px]"
+                                                        >
+                                                            <option value="">Select SBU...</option>
+                                                            <option value="C2W">C2W</option>
+                                                            <option value="CORP">CORP</option>
+                                                            <option value="EPC">EPC</option>
+                                                            <option value="FDN">FDN</option>
+                                                            <option value="PCS">PCS</option>
+                                                            <option value="PH1">PH1</option>
+                                                            <option value="PITX">PITX</option>
+                                                        </select>
                                                 </div>
                                                 <div>
                                                     <label className="block text-[11px] font-medium text-gray-700">Previous Department</label>
@@ -288,7 +314,7 @@ export default function WorkExperience({
                                                             })
                                                         }
                                                         className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1 shadow-sm text-[11px]"
-                                                        placeholder="e.g., Intern"
+                                                        placeholder="e.g., HRD"
                                                     />
                                                 </div>
                                                 <div>

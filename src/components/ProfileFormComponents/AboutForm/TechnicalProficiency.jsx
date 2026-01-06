@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 
 export default function TechnicalProficiency({
     form,
+    loading,
     addRow,
     updateRow,
     confirmRemoveRow,
@@ -18,14 +19,16 @@ export default function TechnicalProficiency({
     ];
 
     useEffect(() => {
+        // Only populate defaults after the parent finished loading data to avoid
+        // a race where defaults are added then immediately cleared by a REPLACE.
+        if (loading) return;
         if (!form.technical_proficiencies || form.technical_proficiencies.length === 0) {
             defaultSkills.forEach((skill) => {
                 addRow("technical_proficiencies", { skills: skill, proficiency: "" });
             });
         }
-        // run once on mount; addRow comes from parent
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [loading]);
     return (
         <div className="bg-white border border-gray-200 shadow-xl rounded-lg p-4">
             <h2 className="text-lg font-semibold text-[#ee3124] flex items-center gap-2">

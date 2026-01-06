@@ -9,7 +9,6 @@ export function initialAboutForm(profileId) {
       lastname: "",
       suffix: "",
     nickname: "",
-    birth_date: "",
     birthdate: "",
     gender: "",
     civil_status: "",
@@ -38,10 +37,10 @@ export function initialAboutForm(profileId) {
     educational_backgrounds: [],
     licenses_certifications: [],
     megawide_work_experience: {
-      job_title: "",
-      department: "",
-      unit: "",
-      job_level: "",
+      position_title_id: "",
+      department_id: "",
+      sbu_id: "",
+      level_id: "",
       employment_status: "",
       current_role_start_date: "",
       current_role_end_date: "",
@@ -67,7 +66,30 @@ export function aboutFormReducer(state, action) {
       }
     }
     case 'REPLACE': {
-      return { ...state, ...action.payload };
+      // Merge payload onto existing state but avoid clobbering client-side
+      // default arrays with empty arrays from the server for certain keys.
+      const payload = action.payload || {};
+      const merged = { ...state, ...payload };
+
+      // For these proficiency arrays, prefer existing non-empty client values
+      // if the server returned an explicit empty array.
+      const preserveIfEmpty = [
+        'technical_proficiencies',
+        'language_proficiencies',
+      ];
+
+      preserveIfEmpty.forEach((k) => {
+        if (Array.isArray(payload[k]) && payload[k].length === 0) {
+          if (Array.isArray(state[k]) && state[k].length > 0) {
+            merged[k] = state[k];
+          } else {
+            // keep the empty payload if state is also empty
+            merged[k] = payload[k];
+          }
+        }
+      });
+
+      return merged;
     }
     case 'INIT': {
       return { ...state, ...action.payload };

@@ -41,7 +41,7 @@ export default function LicensesCertifications({ form, addRow, updateRow, confir
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
                                         <label className="block text-xs font-medium text-gray-700">
-                                            License/Certification Name
+                                            License/Certification/Special Course Name
                                         </label>
                                         <input
                                             type="text"
@@ -55,7 +55,7 @@ export default function LicensesCertifications({ form, addRow, updateRow, confir
                                                 )
                                             }
                                             className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1.5 shadow-sm text-xs"
-                                            placeholder="e.g., PMP"
+                                            placeholder="e.g., Certified Public Accountant (CPA)"
                                         />
                                     </div>
                                     <div>
@@ -74,7 +74,7 @@ export default function LicensesCertifications({ form, addRow, updateRow, confir
                                                 )
                                             }
                                             className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1.5 shadow-sm text-xs"
-                                            placeholder="e.g., Project Management Institute"
+                                            placeholder="e.g., Professional Regulation Commission (PRC), Philippines"
                                         />
                                     </div>
                                     <div>
@@ -93,7 +93,7 @@ export default function LicensesCertifications({ form, addRow, updateRow, confir
                                                 )
                                             }
                                             className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-2 py-1.5 shadow-sm text-xs"
-                                            placeholder="e.g., PMP-123456"
+                                            placeholder="e.g., 9876543"
                                         />
                                     </div>
                                     <div>

@@ -18,6 +18,8 @@ const OrgChartComponent = ({ orgData, refetch }) => {
     const BASE_URL = `${import.meta.env.VITE_API_URL}/storage/`;
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [confirmNodeId, setConfirmNodeId] = useState(null);
+    const [isMoveConfirmOpen, setIsMoveConfirmOpen] = useState(false);
+    const [pendingMove, setPendingMove] = useState(null);
 
     const processedOrgData = useMemo(
         () =>
@@ -76,6 +78,12 @@ const OrgChartComponent = ({ orgData, refetch }) => {
                     : OrgChart.action.zoom // Mobile in portrait
                 : OrgChart.action.ctrlZoom,
             enableDragDrop: true,
+            // Allow free movement of nodes on the canvas (movable.node)
+            // This enables dragging nodes into white space without forcing centering/reparenting.
+            // movable: OrgChart.movable.node,
+            // Enable sticky only on mobile so the chart locks on small screens,
+            // but allow free movement on desktop to avoid auto-centering/rubber-band.
+            sticky: OrgChart.isMobile() ? false : true,
             orientation: OrgChart.isMobile()
                 ? window.matchMedia("(orientation: landscape)").matches
                     ? OrgChart.orientation.top // Mobile in landscape
@@ -83,7 +91,7 @@ const OrgChartComponent = ({ orgData, refetch }) => {
                 : OrgChart.orientation.top, // Desktop (non-mobile)
             nodeBinding: {
                 field_0: "name",
-                field_1: "position_title",
+                field_1: "position",
                 img_0: "image",
             },
             nodes: processedOrgData,
@@ -104,7 +112,7 @@ const OrgChartComponent = ({ orgData, refetch }) => {
                             id: result.id,
                             pid: result.pid,
                             name: result.name,
-                            position_title: result.position_title,
+                            position: result.position,
                             business_unit: result.business_unit,
                             department: result.department,
                             level: result.level,
@@ -137,23 +145,23 @@ const OrgChartComponent = ({ orgData, refetch }) => {
                 generateElementsFromFields: false,
                 elements: [
                     { type: "textbox", label: "Name", binding: "name" },
-                    {
-                        type: "textbox",
-                        label: "Position Title",
-                        binding: "position_title",
-                    },
+                    // {
+                    //     type: "textbox",
+                    //     label: "Position Title",
+                    //     binding: "position_title",
+                    // },
                     { type: "textbox", label: "Nickname", binding: "nickname" },
-                    { type: "textbox", label: "Job Level", binding: "level" },
-                    {
-                        type: "textbox",
-                        label: "Department",
-                        binding: "department",
-                    },
-                    {
-                        type: "textbox",
-                        label: "Business Unit",
-                        binding: "business_unit",
-                    },
+                    // { type: "textbox", label: "Job Level", binding: "level" },
+                    // {
+                    //     type: "textbox",
+                    //     label: "Department",
+                    //     binding: "department",
+                    // },
+                    // {
+                    //     type: "textbox",
+                    //     label: "Business Unit",
+                    //     binding: "business_unit",
+                    // },
                     { type: "textbox", label: "Company", binding: "company" },
                     { type: "textbox", label: "Email", binding: "email" },
                     {
@@ -217,11 +225,15 @@ const OrgChartComponent = ({ orgData, refetch }) => {
         });
 
         chart.onUpdateNode(function (args) {
+            // When a node is dragged to a new parent, the chart emits onUpdateNode.
+            // Instead of immediately persisting, ask the user to confirm the move.
             const oldData = args.oldData;
             const newData = args.newData;
-            console.log("Node Updated:", { oldData, newData });
-            updateOrgStructure(newData);
-            refetch();
+            console.log("Pending Node Move:", { oldData, newData });
+
+            // Store pending move and open confirmation modal
+            setPendingMove({ oldData, newData });
+            setIsMoveConfirmOpen(true);
         });
 
         chart.onRemoveNode(function (args) {
@@ -263,6 +275,47 @@ const OrgChartComponent = ({ orgData, refetch }) => {
     const handleCancelDelete = () => {
         // setIsConfirmOpen(false);
         // setConfirmNodeId(null);
+    };
+
+    // Move confirmation handlers
+    const handleConfirmMove = async () => {
+        if (!pendingMove) return;
+        try {
+            // Persist the new parent
+            await updateOrgStructure(pendingMove.newData);
+            setIsMoveConfirmOpen(false);
+            setPendingMove(null);
+            if (typeof refetch === "function") refetch();
+        } catch (err) {
+            console.error("Failed to update node parent", err);
+            // revert the visual change
+            if (chartInstance.current) {
+                chartInstance.current.updateNode(
+                    pendingMove.oldData,
+                    null,
+                    false,
+                );
+            }
+            setIsMoveConfirmOpen(false);
+            setPendingMove(null);
+        }
+    };
+
+    const handleCancelMove = () => {
+        if (pendingMove && chartInstance.current) {
+            // Revert the chart to the old data without firing update events
+            try {
+                chartInstance.current.updateNode(
+                    pendingMove.oldData,
+                    null,
+                    false,
+                );
+            } catch (err) {
+                console.error("Failed to revert node move", err);
+            }
+        }
+        setIsMoveConfirmOpen(false);
+        setPendingMove(null);
     };
 
     const handleToggleExpandCollapse = () => {
@@ -311,7 +364,7 @@ const OrgChartComponent = ({ orgData, refetch }) => {
         ) {
             const results = chartInstance.current.search(
                 value,
-                ["name", "position_title"],
+                ["name", "position"],
                 ["image"],
             );
             setSearchResults(results);
@@ -356,6 +409,32 @@ const OrgChartComponent = ({ orgData, refetch }) => {
                             onClick={handleConfirmDelete}
                         >
                             Delete
+                        </button>
+                    </div>
+                </div>
+            </CustomModal>
+            <CustomModal
+                isOpen={isMoveConfirmOpen}
+                onClose={handleCancelMove}
+                title="Confirm Move"
+            >
+                <div className="p-4">
+                    <p className="text-gray-700 mb-4">
+                        Are you sure you want to move this employee to the
+                        selected parent?
+                    </p>
+                    <div className="flex justify-end gap-2">
+                        <button
+                            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                            onClick={handleCancelMove}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="px-4 py-2 bg-[#ee3124] text-white rounded hover:bg-red-600"
+                            onClick={handleConfirmMove}
+                        >
+                            Confirm Move
                         </button>
                     </div>
                 </div>
@@ -464,14 +543,14 @@ const OrgChartComponent = ({ orgData, refetch }) => {
                                                     result.name,
                                             }}
                                         />
-                                        {result.position_title && (
+                                        {result.position && (
                                             <div
                                                 style={{
                                                     fontSize: "12px",
                                                     color: "#666",
                                                 }}
                                             >
-                                                {result.position_title}
+                                                {result.position}
                                             </div>
                                         )}
                                     </div>

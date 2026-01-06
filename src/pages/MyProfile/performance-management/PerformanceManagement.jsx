@@ -41,6 +41,8 @@ const data = [
 ];
 
 import React, { useState } from "react";
+import Tabs from "../../../components/Tabs";
+import PerformanceManagementForm from "../forms/PerformanceManagementForm";
 
 export default function PerformanceManagement() {
     const [expandedRows, setExpandedRows] = useState([]);
@@ -69,16 +71,8 @@ export default function PerformanceManagement() {
         );
     };
 
-    return (
+    const overviewContent = (
         <>
-            <div className="relative border-l-4 border-red-600 pl-4 mb-10 animate-slide-up">
-                <h2 className="text-lg font-semibold text-[#ee3124] mb-2">
-                    Individual Contributor Form
-                </h2>
-                <p className="text-gray-700 leading-relaxed text-base">
-                    Status: Department Head Calibration
-                </p>
-            </div>
             <div className="bg-white border border-gray-200 shadow-xl rounded-lg p-4 mb-4">
                 <SectionTitle>Overall Rating</SectionTitle>
                 <div className="mt-3 text-sm">
@@ -249,6 +243,57 @@ export default function PerformanceManagement() {
                 </div>
             </div>
         </>
+    );
+
+    const [pmActiveTab, setPmActiveTab] = useState("overview");
+
+    const tabsList = [
+        { id: "overview", label: "Overview", content: overviewContent },
+        { id: "objectives", label: "Individual Objectives & Deliverables", content: <PerformanceManagementForm renderSection="objectives" /> },
+        { id: "competencies", label: "Competencies & Values", content: <PerformanceManagementForm renderSection="competencies" /> },
+    ];
+
+    return (
+        <div>
+            {/* Header: stack on mobile, inline on sm+ (title above, tabs below on mobile) */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex-1 min-w-0 relative border-l-4 border-red-600 pl-4 mb-3 sm:mb-0">
+                    <h2 className="text-lg font-semibold text-[#ee3124] mb-0 truncate">Individual Contributor Form</h2>
+                    <p className="text-gray-700 leading-relaxed text-sm truncate">Status: Department Head Calibration</p>
+                </div>
+
+                <div className="flex-none ml-0 sm:ml-4 w-full sm:w-auto">
+                    {/* Tabs: visible on all sizes; on mobile they appear on their own row below the title */}
+                    <nav className="-mb-px flex items-center gap-2 overflow-x-auto px-1 w-full" aria-label="PM Tabs">
+                        {tabsList.map((t) => {
+                            const isActive = t.id === pmActiveTab;
+                            return (
+                                <button
+                                    key={t.id}
+                                    onClick={() => setPmActiveTab(t.id)}
+                                    role="tab"
+                                    aria-selected={isActive}
+                                    aria-controls={`pm-tab-panel-${t.id}`}
+                                    id={`pm-tab-${t.id}`}
+                                    className={`snap-start inline-flex items-center justify-center w-full sm:w-auto text-center sm:text-left whitespace-nowrap py-2 px-3 sm:py-3 sm:px-4 font-medium text-sm rounded-t-lg focus:outline-none ${
+                                        isActive
+                                            ? "text-red-700 bg-white border-t border-l border-r border-gray-200"
+                                            : "text-gray-600 hover:text-gray-800 bg-gray-50"
+                                    }`}
+                                >
+                                    <span className="truncate" title={t.label}>{t.label}</span>
+                                </button>
+                            );
+                        })}
+                    </nav>
+                </div>
+            </div>
+
+            {/* Panels (hide internal Tabs nav since we render our own) */}
+            <div className="mt-4">
+                <Tabs tabs={tabsList} active={pmActiveTab} onChange={setPmActiveTab} hideNav={true} />
+            </div>
+        </div>
     );
 }
 

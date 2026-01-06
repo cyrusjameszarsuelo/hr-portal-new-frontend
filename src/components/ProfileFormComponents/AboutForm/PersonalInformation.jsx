@@ -14,17 +14,24 @@ export default function PersonalInformation({ form, dispatch }) {
             form.permanent_address_zip_code,
     );
 
-    const handleCopyPermanentToCurrent = () => {
-        if (!permanentComplete) return;
+    const currentComplete = Boolean(
+        form.current_address_street &&
+            form.current_address_city &&
+            form.current_address_region &&
+            form.current_address_zip_code,
+    );
+
+    const handleCopyCurrentToPermanent = () => {
+        if (!currentComplete) return;
         dispatch({
             type: "APPLY_UPDATER",
             updater: (p) => ({
                 ...p,
-                current_address_street: p.permanent_address_street,
-                current_address_barangay: p.permanent_address_barangay,
-                current_address_city: p.permanent_address_city,
-                current_address_region: p.permanent_address_region,
-                current_address_zip_code: p.permanent_address_zip_code,
+                permanent_address_street: p.current_address_street,
+                permanent_address_barangay: p.current_address_barangay,
+                permanent_address_city: p.current_address_city,
+                permanent_address_region: p.current_address_region,
+                permanent_address_zip_code: p.current_address_zip_code,
             }),
         });
     };
@@ -103,8 +110,8 @@ export default function PersonalInformation({ form, dispatch }) {
                     <label className="block text-sm font-medium text-gray-700">Birth Date</label>
                     <input
                         type="date"
-                        value={form.birth_date}
-                        onChange={(e) => updateField("birth_date", e.target.value)}
+                        value={form.birthdate}
+                        onChange={(e) => updateField("birthdate", e.target.value)}
                         className="mt-2 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
                     />
                 </div>
@@ -192,7 +199,7 @@ export default function PersonalInformation({ form, dispatch }) {
                     </select>
                 </div>
 
-                <div>
+                {/* <div>
                     <label className="block text-sm font-medium text-gray-700">Upload Photo</label>
                     <input
                         type="file"
@@ -200,7 +207,7 @@ export default function PersonalInformation({ form, dispatch }) {
                         onChange={(e) => updateField("upload_photo", e.target.files?.[0]?.name || "")}
                         className="mt-2 w-full text-sm"
                     />
-                </div>
+                </div> */}
             </div>
 
             {/* Emergency Contact */}
@@ -272,85 +279,25 @@ export default function PersonalInformation({ form, dispatch }) {
                 </div>
             </div>
 
-            {/* Permanent Address (must precede current) */}
+            {/* Current Address (now displayed first) */}
             <div className="mt-8">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Permanent Address</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="md:col-span-2">
-                        <label className="block text-xs font-medium text-gray-700">Street</label>
-                        <input
-                            type="text"
-                            value={form.permanent_address_street}
-                            onChange={(e) => updateField("permanent_address_street", e.target.value)}
-                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
-                            placeholder="e.g., 456 Luna Avenue, Barangay Poblacion"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700">Barangay</label>
-                        <input
-                            type="text"
-                            value={form.permanent_address_barangay}
-                            onChange={(e) => updateField("permanent_address_barangay", e.target.value)}
-                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
-                            placeholder="e.g., Barangay Poblacion"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700">City</label>
-                        <input
-                            type="text"
-                            value={form.permanent_address_city}
-                            onChange={(e) => updateField("permanent_address_city", e.target.value)}
-                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
-                            placeholder="e.g., Quezon City"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700">Region</label>
-                        <input
-                            type="text"
-                            value={form.permanent_address_region}
-                            onChange={(e) => updateField("permanent_address_region", e.target.value)}
-                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
-                            placeholder="e.g., NCR"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700">Zip Code</label>
-                        <input
-                            type="text"
-                            value={form.permanent_address_zip_code}
-                            onChange={(e) => updateField("permanent_address_zip_code", e.target.value)}
-                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
-                            placeholder="e.g., 1100"
-                        />
-                    </div>
-                </div>
-                {permanentComplete && (
-                    <p className="text-[11px] text-green-600 mt-2">Permanent address complete. You can now edit or copy into Current Address.</p>
-                )}
-            </div>
-
-            {/* Current Address (disabled until permanent filled) */}
-            <div className="mt-4">
                 <div className="flex items-center justify-between mb-2">
                     <h3 className="text-sm font-semibold text-gray-700">Current Address</h3>
                     <button
                         type="button"
-                        onClick={handleCopyPermanentToCurrent}
-                        disabled={!permanentComplete}
+                        onClick={handleCopyCurrentToPermanent}
+                        disabled={!currentComplete}
                         className={`px-2 py-1 rounded-md text-xs font-medium transition border ${
-                            permanentComplete
+                            currentComplete
                                 ? "bg-gray-600 text-white hover:bg-gray-700"
                                 : "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
                         }`}
                     >
-                        Copy Permanent
+                        Copy Current
                     </button>
                 </div>
-                {!permanentComplete && (
-                    <p className="text-xs text-red-600 mb-2">Fill out the Permanent Address below first to enable editing or copying.</p>
+                {!currentComplete && (
+                    <p className="text-xs text-red-600 mb-2">Fill out the Current Address above to enable copying into Permanent Address.</p>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="md:col-span-2">
@@ -359,7 +306,6 @@ export default function PersonalInformation({ form, dispatch }) {
                             type="text"
                             value={form.current_address_street}
                             onChange={(e) => updateField("current_address_street", e.target.value)}
-                            disabled={!permanentComplete}
                             className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
                             placeholder="e.g., 123 Rizal Street, Barangay San Antonio"
                         />
@@ -370,7 +316,6 @@ export default function PersonalInformation({ form, dispatch }) {
                             type="text"
                             value={form.current_address_barangay}
                             onChange={(e) => updateField("current_address_barangay", e.target.value)}
-                            disabled={!permanentComplete}
                             className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
                             placeholder="e.g., Barangay San Antonio"
                         />
@@ -381,7 +326,6 @@ export default function PersonalInformation({ form, dispatch }) {
                             type="text"
                             value={form.current_address_city}
                             onChange={(e) => updateField("current_address_city", e.target.value)}
-                            disabled={!permanentComplete}
                             className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
                             placeholder="e.g., Makati City"
                         />
@@ -392,7 +336,6 @@ export default function PersonalInformation({ form, dispatch }) {
                             type="text"
                             value={form.current_address_region}
                             onChange={(e) => updateField("current_address_region", e.target.value)}
-                            disabled={!permanentComplete}
                             className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
                             placeholder="e.g., NCR"
                         />
@@ -403,12 +346,82 @@ export default function PersonalInformation({ form, dispatch }) {
                             type="text"
                             value={form.current_address_zip_code}
                             onChange={(e) => updateField("current_address_zip_code", e.target.value)}
-                            disabled={!permanentComplete}
                             className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
                             placeholder="e.g., 1200"
                         />
                     </div>
                 </div>
+                {currentComplete && (
+                    <p className="text-[11px] text-green-600 mt-2">Current address complete. You can now copy it into Permanent Address.</p>
+                )}
+            </div>
+
+            {/* Permanent Address (now displayed after Current) */}
+            <div className="mt-4">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Permanent Address</h3>
+                {!currentComplete && (
+                    <p className="text-xs text-red-600 mb-2">Fill out the Current Address above first to enable editing or copying.</p>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-gray-700">Street</label>
+                        <input
+                            type="text"
+                            value={form.permanent_address_street}
+                            onChange={(e) => updateField("permanent_address_street", e.target.value)}
+                            disabled={!currentComplete}
+                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
+                            placeholder="e.g., 456 Luna Avenue, Barangay Poblacion"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700">Barangay</label>
+                        <input
+                            type="text"
+                            value={form.permanent_address_barangay}
+                            onChange={(e) => updateField("permanent_address_barangay", e.target.value)}
+                            disabled={!currentComplete}
+                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
+                            placeholder="e.g., Barangay Poblacion"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700">City</label>
+                        <input
+                            type="text"
+                            value={form.permanent_address_city}
+                            onChange={(e) => updateField("permanent_address_city", e.target.value)}
+                            disabled={!currentComplete}
+                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
+                            placeholder="e.g., Quezon City"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700">Region</label>
+                        <input
+                            type="text"
+                            value={form.permanent_address_region}
+                            onChange={(e) => updateField("permanent_address_region", e.target.value)}
+                            disabled={!currentComplete}
+                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
+                            placeholder="e.g., NCR"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700">Zip Code</label>
+                        <input
+                            type="text"
+                            value={form.permanent_address_zip_code}
+                            onChange={(e) => updateField("permanent_address_zip_code", e.target.value)}
+                            disabled={!currentComplete}
+                            className="mt-1 w-full rounded-md bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#ee3124] focus:ring-[#ee3124] px-3 py-2 shadow-sm sm:text-sm"
+                            placeholder="e.g., 1100"
+                        />
+                    </div>
+                </div>
+                {permanentComplete && (
+                    <p className="text-[11px] text-green-600 mt-2">Permanent address complete.</p>
+                )}
             </div>
         </div>
     );
