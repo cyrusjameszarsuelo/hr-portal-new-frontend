@@ -1,0 +1,1 @@
+import{aj as r}from"./index-DsIlmJHD.js";async function s(){try{return(await r.get("/position-titles")).data}catch(t){throw console.error("Error fetching audit logs:",t),t}}async function e(t){try{return(await r.post("/position-titles",{position_title:t})).data}catch(o){throw console.error("Error adding position title:",o),o}}export{e as a,s as g};

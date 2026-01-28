@@ -152,7 +152,7 @@ export default function ProfileRoot({ orgStructureId }) {
 
     if (!userProfile) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex items-center justify-center min-h-100">
                 <div className="relative">
                     <div className="w-16 h-16 border-4 border-gray-200 border-t-[#ee3124] rounded-full animate-spin"></div>
                 </div>
@@ -469,7 +469,7 @@ export default function ProfileRoot({ orgStructureId }) {
                 <div className="w-full flex flex-col gap-4 px-5 mt-5 md:mt-0">
                     <div className="w-full bg-white border border-gray-200 rounded-lg p-4">
                         {loadingMember || _isLoadingProfile ? (
-                            <div className="flex items-center justify-center min-h-[400px]">
+                            <div className="flex items-center justify-center min-h-100">
                                 <div className="relative">
                                     <div className="w-16 h-16 border-4 border-gray-200 border-t-[#ee3124] rounded-full animate-spin"></div>
                                 </div>

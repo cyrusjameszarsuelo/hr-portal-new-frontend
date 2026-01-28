@@ -11,7 +11,7 @@ import Title from "../../components/Title";
 export default function ManageDescription() {
     const [description, setDescription] = useState({
         id: null,
-        subfunctionId: null,
+        subfunction_description_id: null,
         deliverable: "",
         frequency_deliverable: "",
         responsible: "",
@@ -23,16 +23,17 @@ export default function ManageDescription() {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
-    const { subfunctionId, descriptionId } = useParams();
+    const { subfunctionId: subfunctionDescriptionId, descriptionId: paramId } =
+        useParams();
 
     const {
         data: descriptionData,
         isLoading,
         isError,
     } = useQuery({
-        queryKey: ["description", descriptionId],
-        queryFn: async () => getDescriptionById(descriptionId),
-        enabled: descriptionId !== undefined && descriptionId !== null,
+        queryKey: ["description", paramId],
+        queryFn: async () => getDescriptionById(paramId),
+        enabled: paramId !== undefined && paramId !== null,
         refetchOnMount: true,
         refetchOnWindowFocus: true,
     });
@@ -45,7 +46,7 @@ export default function ManageDescription() {
         const { name, value } = e.target;
         setDescription((prev) => ({
             ...prev,
-            subfunctionId: subfunctionId,
+            subfunction_description_id: subfunctionDescriptionId,
             [name]: value,
         }));
     };
@@ -54,7 +55,7 @@ export default function ManageDescription() {
         // Clear state when id changes or before fetching new data
         setDescription({
             id: null,
-            subfunctionId: null,
+            subfunction_description_id: null,
             deliverable: "",
             frequency_deliverable: "",
             responsible: "",
@@ -63,13 +64,15 @@ export default function ManageDescription() {
             consulted: "",
             informed: "",
         });
-    }, [descriptionId, subfunctionId]);
+    }, [paramId, subfunctionDescriptionId]);
 
     useEffect(() => {
-        if (descriptionData && subfunctionId) {
+        if (descriptionData) {
             setDescription({
                 id: descriptionData.id,
-                subfunctionId: subfunctionId,
+                subfunction_description_id:
+                    descriptionData.subfunction_description_id ||
+                    subfunctionDescriptionId,
                 deliverable: descriptionData.deliverable,
                 frequency_deliverable: descriptionData.frequency_deliverable,
                 responsible: descriptionData.responsible,
@@ -79,7 +82,7 @@ export default function ManageDescription() {
                 informed: descriptionData.informed,
             });
         }
-    }, [descriptionData, subfunctionId]);
+    }, [descriptionData, subfunctionDescriptionId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -103,12 +106,12 @@ export default function ManageDescription() {
     };
 
     if (isLoading) return <Loading />;
-    if (isError) return <Error message="Failed to load Edit Functions." />;
+    if (isError) return <Error message="Failed to load Description." />;
 
     return (
         <div className=" mx-auto p-6 bg-white rounded-lg shadow mt-8">
             <div className="w-full sm:w-auto mb-5">
-                {descriptionId ? (
+                {paramId ? (
                     <Title title="Edit Description" />
                 ) : (
                     <Title title="Add Description" />

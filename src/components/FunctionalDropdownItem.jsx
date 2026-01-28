@@ -202,9 +202,9 @@ export default function FunctionalDropdownItem({
         }
     };
 
-    const handleDescriptionEdit = (paramId) => {
+    const handleDescriptionEdit = (subfunctionDescriptionId, paramId) => {
         navigate(
-            `/manage-description/${data.subfunction_id || ""}/${paramId || ""}`,
+            `/manage-description/${subfunctionDescriptionId || ""}/${paramId || ""}`,
         );
     };
 
@@ -514,6 +514,7 @@ export default function FunctionalDropdownItem({
                                                                 className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-200 text-sm flex-shrink-0"
                                                                 onClick={() =>
                                                                     handleDescriptionEdit(
+                                                                        desc.descriptionId,
                                                                         desc.paramId,
                                                                     )
                                                                 }
